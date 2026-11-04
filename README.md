@@ -1,12 +1,10 @@
 # Dapple
 
+![Dapple: What if Apple designed Discord?](.github/social-preview.jpg)
+
 **What if Apple designed Discord?**
 
 Discord, in a new light. A Liquid Glass theme for Equicord, Vencord and BetterDiscord, in pure CSS, with no plugins and nothing to host.
-
-![Dapple running in Discord, with Liquid Glass panels over the Blue wallpaper](design/screens/discord.png)
-
-<sub>A real capture of Dapple in Discord. The server, people and messages are placeholders.</sub>
 
 ## Versions
 
@@ -20,6 +18,13 @@ Every version is glass over a wallpaper. Only the weight of the glass changes.
 
 Enable one at a time.
 
+| | Dark | Light |
+| --- | --- | --- |
+| **Dapple** | ![Dapple in dark](design/screens/variants/version-dapple-dark.jpg) | ![Dapple in light](design/screens/variants/version-dapple-light.jpg) |
+| **Dapple Dark and Dapple Light** | ![Dapple Dark and Dapple Light in dark](design/screens/variants/version-dark.jpg) | ![Dapple Dark and Dapple Light in light](design/screens/variants/version-light.jpg) |
+
+<sub>Every screenshot is a real capture of Dapple in Discord. The server, people and messages are placeholders.</sub>
+
 ## Flavours
 
 Each version uses the Blue wallpaper. To change it, turn on one Flavour alongside your version:
@@ -27,6 +32,16 @@ Each version uses the Blue wallpaper. To change it, turn on one Flavour alongsid
 Skyblue · Green · Yellow · Orange · Red · Purple · Silver
 
 Each Flavour swaps between a Light and Dark image to match your version.
+
+| | Dark | Light |
+| --- | --- | --- |
+| **Skyblue** | ![Skyblue in dark](design/screens/variants/skyblue-dark.jpg) | ![Skyblue in light](design/screens/variants/skyblue-light.jpg) |
+| **Green** | ![Green in dark](design/screens/variants/green-dark.jpg) | ![Green in light](design/screens/variants/green-light.jpg) |
+| **Yellow** | ![Yellow in dark](design/screens/variants/yellow-dark.jpg) | ![Yellow in light](design/screens/variants/yellow-light.jpg) |
+| **Orange** | ![Orange in dark](design/screens/variants/orange-dark.jpg) | ![Orange in light](design/screens/variants/orange-light.jpg) |
+| **Red** | ![Red in dark](design/screens/variants/red-dark.jpg) | ![Red in light](design/screens/variants/red-light.jpg) |
+| **Purple** | ![Purple in dark](design/screens/variants/purple-dark.jpg) | ![Purple in light](design/screens/variants/purple-light.jpg) |
+| **Silver** | ![Silver in dark](design/screens/variants/silver-dark.jpg) | ![Silver in light](design/screens/variants/silver-light.jpg) |
 
 ## Install
 

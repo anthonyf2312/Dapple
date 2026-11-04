@@ -532,17 +532,30 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
    7. Chat: the content layer
    -------------------------------------------------------------------------- */
 
-~content:has(> ~chatContent) {
+~chat > ~content {
   gap: var(--dp-gap);
 }
 
-~chatContent {
+/* The first thing in a chat is its main pane: a message list, or the post list in a threads
+   channel, which has no main element. Anything else, like the member list, docks beside it. */
+~chat > ~content > :first-child {
   anchor-name: --dp-main;
   overflow: hidden;
   border-radius: var(--dp-r-panel);
   background: var(--dp-content-bg) !important;
   backdrop-filter: var(--dp-content-filter);
   box-shadow: var(--dp-content-shadow);
+}
+
+/* A threads list doesn't scroll under the header, so it starts below it. */
+~chat > ~content > :first-child:not(~chatContent) {
+  padding-block-start: 60px;
+}
+
+/* There, a channel notice takes its own row instead of covering the search box. */
+~chat > ~content > :first-child:not(~chatContent) ~chatHeaderBar {
+  position: static;
+  margin: 4px 12px;
 }
 
 /* The header sits over chat only. Anchoring it to main means it follows the member list,
@@ -655,6 +668,32 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   filter: var(--dp-name-filter);
 }
 
+/* Discord pins these to the very top and bottom of the transcript, which would put them behind
+   the header and the composer. They float clear of both instead. */
+~jumpToPresentBar,
+~newMessagesBar {
+  inset-inline: 24px;
+  z-index: 8;
+  border: 0;
+  border-radius: var(--dp-capsule);
+}
+
+~jumpToPresentBar {
+  bottom: 84px;
+  min-height: 36px;
+  padding-block: 0;
+  overflow: hidden;
+  background: var(--dp-menu-bg);
+  backdrop-filter: var(--dp-menu-filter);
+  box-shadow: var(--dp-menu-shadow);
+}
+
+~newMessagesBar {
+  top: 66px;
+  background-color: var(--dp-accent);
+  box-shadow: var(--dp-selected-shadow);
+}
+
 /* --------------------------------------------------------------------------
    8. Composer: the one capsule with a real refracting rim
 
@@ -694,7 +733,9 @@ form~form ~typing {
    9. Inspector: the member list
    -------------------------------------------------------------------------- */
 
+/* Discord draws a 1px border here, which shows as a straight line beside the rounded corners. */
 ~content > ~container:has(~membersWrap) {
+  border: 0 !important;
   background: none;
 }
 
@@ -855,7 +896,7 @@ html:not(.full-motion) {
 }
 
 /* Pages without a chat, like Friends, Shop and Quests, sit on the same material. */
-[data-fullscreen] ~page > :not(:has(~chatContent)) {
+[data-fullscreen] ~page > :not(:has(~channelArea)) {
   overflow: hidden;
   border-radius: var(--dp-r-panel) !important;
   background: var(--dp-content-bg) !important;

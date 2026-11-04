@@ -2,7 +2,7 @@
 
 **Concept:** what if Apple designed Discord. The app rebuilt on Apple's rules: a floating functional layer over content, one quiet accent, type that does the work, and motion that behaves like physics.
 
-**Status:** v1.0.0. Built, tested in real Discord, and kept in a private repo. It stays private because the wallpapers are third-party work embedded in every theme file. A public release needs either the creator's permission or an original wallpaper set.
+**Status:** v1.0.1. Built, tested in real Discord, and public.
 
 | File | Purpose |
 | --- | --- |
@@ -95,6 +95,8 @@ Checked against Discord 1.0.9267 on Chrome 152.
 - **`backdrop-filter` ignores `corner-shape`.** Chromium clips the blur to a round corner, so a squircle on glass leaves a box of darkened backdrop around the curve. Anything with `backdrop-filter` stays round.
 - **Docked panels get no outer shadow.** Discord's `overflow: hidden` containers cut it into a hard straight line. Rim light gives the edge instead, and only free-floating menus and sheets keep a shadow.
 - **Overlays need the panel's radius.** The header fade sits on top of the chat panel, so a square fade covers its rounded corners.
+- **The main pane isn't always `main`.** Threads channels have none, so the plate and header anchor sit on the chat area's first child. Test threads channels, not just text channels.
+- **Discord pins some bars to the very edges of the transcript.** The jump and new messages bars need moving clear of the composer and the header.
 - **Sheens wash out labels.** The diagonal highlight lands on the top-left of each panel, right where section headers sit, so keep it subtle.
 - **`backdrop-filter` traps fixed children.** It makes the element their containing block, so the chip behind the window buttons is a pseudo-element.
 - **Never animate opacity, filter or mask on an ancestor of glass.** It becomes a backdrop root and the blur stops seeing the page.
@@ -115,7 +117,7 @@ Checked against Discord 1.0.9267 on Chrome 152.
 
 - Scrolling performance. The debug session caps at about 13 fps with or without a theme, so it can't measure this.
 - Vencord and BetterDiscord.
-- Screen share, voice and video call views, threads and forums.
+- Screen share, and voice and video call views.
 - Windows snap and resize behavior with the traffic lights.
 - Reduce Motion, Reduce Transparency and Increase Contrast in the real client.
 

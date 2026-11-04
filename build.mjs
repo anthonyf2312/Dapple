@@ -12,7 +12,7 @@ import sharp from 'sharp';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const AUTHOR = 'anthonyf2312';
 const SOURCE = 'https://github.com/anthonyf2312/Dapple';
-const THEME_VERSION = '1.0.0';
+const THEME_VERSION = '1.0.1';
 const WALLPAPER_WIDTH = 2560; // the glass hides most of it, so anything larger is wasted bytes
 const CACHE = join(ROOT, '.cache', 'wallpapers');
 const FONT = 'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap';
