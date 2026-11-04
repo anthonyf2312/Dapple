@@ -18,9 +18,9 @@ const CACHE = join(ROOT, '.cache', 'wallpapers');
 const FONT = 'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap';
 
 const VERSIONS = [
-  { id: 'glass', file: 'Dapple', name: 'Dapple', description: 'Discord, in a new light. What if Apple designed Discord? Liquid Glass that follows your light or dark appearance.' },
-  { id: 'light', file: 'Dapple-Light', name: 'Dapple Light', description: 'Discord, in a new light. What if Apple designed Discord? Liquid Glass, but lighter.' },
-  { id: 'dark', file: 'Dapple-Dark', name: 'Dapple Dark', description: 'Discord, in a new light. What if Apple designed Discord? Liquid Glass, but darker.' },
+  { id: 'glass', file: 'Dapple', name: 'Dapple', description: 'What if Apple designed Discord? Discord, in a new light. A Liquid Glass theme.' },
+  { id: 'light', file: 'Dapple-Light', name: 'Dapple Light', description: 'What if Apple designed Discord? Discord, in a new light. A Liquid Glass theme.' },
+  { id: 'dark', file: 'Dapple-Dark', name: 'Dapple Dark', description: 'What if Apple designed Discord? Discord, in a new light. A Liquid Glass theme.' },
 ];
 
 // Blue is built into every version. Each flavour is a small add-on that swaps the wallpaper.
@@ -149,6 +149,7 @@ const header = (name, description) => `/**
  * @description ${description}
  * @author ${AUTHOR}
  * @version ${THEME_VERSION}
+ * @website ${SOURCE}
  * @source ${SOURCE}
  */
 `;
