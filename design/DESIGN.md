@@ -105,6 +105,7 @@ Checked against Discord 1.0.9267 on Chrome 152.
 - **Don't mask a backdrop blur for scroll edges.** It leaves a hard cut, so use an eased gradient.
 - **Don't override the sidebar width.** It's the user's saved size.
 - **`title` is a shared stem** across nested elements, so use direct-child selectors there.
+- **Base64 can spell things by chance.** The Equicord Theme Library refuses any file containing `PNG`, `JFIF` and similar, even inside an embedded image, so the build re-encodes a wallpaper a notch lower until it's clean.
 
 ## Verification
 

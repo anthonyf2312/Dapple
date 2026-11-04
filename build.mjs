@@ -14,6 +14,9 @@ const AUTHOR = 'anthonyf2312';
 const SOURCE = 'https://github.com/anthonyf2312/Dapple';
 const THEME_VERSION = '1.0.1';
 const WALLPAPER_WIDTH = 2560; // the glass hides most of it, so anything larger is wasted bytes
+const WEBP_QUALITY = 80;
+// The Equicord Theme Library refuses a file containing any of these, even by chance inside base64.
+const REJECTED_TEXT = ['JFIF', 'Photoshop', 'PNG', 'GIF8', 'PDF-'];
 const CACHE = join(ROOT, '.cache', 'wallpapers');
 const FONT = 'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap';
 
@@ -97,16 +100,24 @@ function lens({ height, rim, scale, bottom = true }) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}#l")`;
 }
 
+const findRejected = text => REJECTED_TEXT.find(marker => text.includes(marker));
+
 async function wallpaper(source) {
   mkdirSync(CACHE, { recursive: true });
   const cached = join(CACHE, `${source.replace(/[^\w-]/g, '_')}.webp`);
-  if (!existsSync(cached)) {
-    await sharp(join(ROOT, 'assets', `${source}.png`))
-      .resize({ width: WALLPAPER_WIDTH, withoutEnlargement: true })
-      .webp({ quality: 80, effort: 6 })
-      .toFile(cached);
+  const encode = quality => sharp(join(ROOT, 'assets', `${source}.png`))
+    .resize({ width: WALLPAPER_WIDTH, withoutEnlargement: true })
+    .webp({ quality, effort: 6 })
+    .toFile(cached);
+  const base64 = () => readFileSync(cached).toString('base64');
+
+  if (!existsSync(cached)) await encode(WEBP_QUALITY);
+  // One notch of quality rewrites the bytes with no visible change, which clears a chance match.
+  for (let quality = WEBP_QUALITY - 1; findRejected(base64()); quality--) {
+    if (quality < WEBP_QUALITY - 5) throw new Error(`${source}: no encoding free of rejected text`);
+    await encode(quality);
   }
-  return `url("data:image/webp;base64,${readFileSync(cached).toString('base64')}")`;
+  return `url("data:image/webp;base64,${base64()}")`;
 }
 
 // CSS can't sample what's behind glass, but the build can. Each wallpaper is blurred the way the
@@ -156,6 +167,12 @@ const header = (name, description) => `/**
 
 const kb = text => `${(Buffer.byteLength(text) / 1024).toFixed(0)} KB`;
 
+function writeTheme(path, css) {
+  const found = findRejected(css);
+  if (found) throw new Error(`${path} contains "${found}", so the Equicord Theme Library would refuse it`);
+  writeFileSync(path, css);
+}
+
 async function main() {
   rmSync(join(ROOT, 'dist'), { recursive: true, force: true });
   mkdirSync(join(ROOT, 'dist', 'flavours'), { recursive: true });
@@ -185,7 +202,7 @@ ${declarations(previewClamps.Blue)}
 
   for (const v of VERSIONS) {
     const css = [header(v.name, v.description), `@import url("${FONT}");`, lenses, tokensFor(v.id), follow[v.id], theme].join('\n\n');
-    writeFileSync(join(ROOT, 'dist', `${v.file}.theme.css`), css);
+    writeTheme(join(ROOT, 'dist', `${v.file}.theme.css`), css);
     console.log(`${v.file}.theme.css`.padEnd(44), kb(css));
   }
 
@@ -203,7 +220,7 @@ ${declarations(clamps)}
 }
 `;
     const file = `Dapple-Flavour-${f.name.replace(/\s+/g, '')}.theme.css`;
-    writeFileSync(join(ROOT, 'dist', 'flavours', file), css);
+    writeTheme(join(ROOT, 'dist', 'flavours', file), css);
     console.log(`flavours/${file}`.padEnd(44), kb(css));
   }
 
