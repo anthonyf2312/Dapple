@@ -27,7 +27,7 @@ Chat always sits on a thicker material than the navigation, per the HIG: glass b
 
 ## Flavours
 
-A Flavour is a small add-on theme that swaps the wallpaper, so 3 versions and 8 Flavours need 11 files rather than 24. It's enabled alongside a version and uses `html:root`, so it wins whichever file loads first.
+A Flavour is a small add-on theme that swaps the wallpaper, so 3 versions and 7 Flavours need 10 files rather than 21. It's enabled alongside a version and uses `html:root`, so it wins whichever file loads first.
 
 ## Legible on any wallpaper
 
@@ -107,7 +107,7 @@ Checked against Discord 1.0.9267 on Chrome 152.
 ## Verification
 
 - **Real Discord, loaded through Equicord, in a chat with the Friends panel open:** 26 of 26 interface labels pass in all three versions, with lows of 4.98:1, 4.89:1 and 5.03:1. Role-colored names are excluded, because each server sets them.
-- **Liquid Glass on all 9 wallpapers, dark:** 270 interface labels with no failures, lowest 4.81:1.
+- **Liquid Glass on every wallpaper, dark:** 270 interface labels with no failures, lowest 4.81:1. That run covered 9 wallpapers, including one since removed.
 - **Mock, every version on every wallpaper:** 2,488 text measurements. Before the final sheen fix, 7 failed on Flavours, which the 270-label run re-checked and cleared. Another 7 are mock role names, which stand in for server-set colors. Blue had no interface failures.
 - **Before Liquid Glass was thinned:** sheets passed, and 96 menu rows over the brightest wallpapers had a lowest of 5.73:1. Menus and sheets keep their own thicker glass and were not re-measured.
 

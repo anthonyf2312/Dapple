@@ -570,7 +570,6 @@
   <select id="wallPick" aria-label="Wallpaper">
     <option selected>Blue</option><option>Skyblue</option><option>Green</option><option>Yellow</option>
     <option>Orange</option><option>Red</option><option>Purple</option><option>Silver</option>
-    <option>GoldenGate</option>
   </select>
 </div>
 
@@ -603,7 +602,7 @@
   const wallPick = document.getElementById('wallPick');
   const applyWall = () => {
     const name = wallPick.value;
-    const file = name === 'GoldenGate' ? 'GoldenGate_Mac+2' : `${name}_${root.dataset.appearance === 'dark' ? 'Dark' : 'Light'}`;
+    const file = `${name}_${root.dataset.appearance === 'dark' ? 'Dark' : 'Light'}`;
     root.style.setProperty('--dp-wall-image', `url("../assets/${file}.png") center / cover no-repeat`);
     for (const [k, v] of Object.entries(window.DAPPLE_CLAMPS?.[name] ?? {})) root.style.setProperty(k, v);
   };

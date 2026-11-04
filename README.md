@@ -24,9 +24,9 @@ Enable one at a time.
 
 Each version uses the Blue wallpaper. To change it, turn on one Flavour alongside your version:
 
-Skyblue · Green · Yellow · Orange · Red · Purple · Silver · Golden Gate
+Skyblue · Green · Yellow · Orange · Red · Purple · Silver
 
-The wave Flavours swap between a Light and Dark image to match the version. Golden Gate uses one image for both.
+Each Flavour swaps between a Light and Dark image to match your version.
 
 ## Install
 
@@ -83,7 +83,6 @@ Tokens live in `src/tokens.css` and styles in `src/theme.css`. The build writes 
 ## Credits
 
 - **Wave wallpapers:** [Sound.wav](https://basicappleguy.com/basicappleblog/soundwav) by Basic Apple Guy. They're free to download, and he takes [the WinRAR approach](https://basicappleguy.com/basicappleblog/the-winrar-approach): the bundle is an optional way to support his work. If you enjoy them, please consider it.
-- **Golden Gate wallpaper:** rights belong to its creator.
 
 ## License
 

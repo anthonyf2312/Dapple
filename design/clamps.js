@@ -46,11 +46,5 @@ window.DAPPLE_CLAMPS = {
     "--dp-dim-content": 0.68,
     "--dp-lift-panel": 0.56,
     "--dp-lift-content": 0.22
-  },
-  "GoldenGate": {
-    "--dp-dim-panel": 0.56,
-    "--dp-dim-content": 0.45,
-    "--dp-lift-panel": 0.22,
-    "--dp-lift-content": 0.22
   }
 };

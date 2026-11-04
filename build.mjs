@@ -27,7 +27,6 @@ const VERSIONS = [
 const FLAVOURS = [
   { name: 'Skyblue' }, { name: 'Green' }, { name: 'Yellow' }, { name: 'Orange' },
   { name: 'Red' }, { name: 'Purple' }, { name: 'Silver' },
-  { name: 'Golden Gate', source: 'GoldenGate_Mac+2' },
 ];
 
 const DARK_ROOT = 'html.theme-dark, html.theme-darker, html.theme-midnight';
@@ -190,10 +189,10 @@ ${declarations(previewClamps.Blue)}
   }
 
   for (const f of FLAVOURS) {
-    const dark = await wallpaper(f.source ?? `${f.name}_Dark`);
-    const light = f.source ? dark : await wallpaper(`${f.name}_Light`);
-    const clamps = await clampPair(f.source ?? `${f.name}_Dark`, f.source ?? `${f.name}_Light`);
-    previewClamps[f.source ? 'GoldenGate' : f.name] = clamps;
+    const dark = await wallpaper(`${f.name}_Dark`);
+    const light = await wallpaper(`${f.name}_Light`);
+    const clamps = await clampPair(`${f.name}_Dark`, `${f.name}_Light`);
+    previewClamps[f.name] = clamps;
     const css = `${header(`Dapple Flavour: ${f.name}`, `Turn this on alongside Dapple, Dapple Light or Dapple Dark to swap the wallpaper to ${f.name}.`)}
 /* html:root outranks the version's :root, whichever theme file loads first. */
 html:root {
