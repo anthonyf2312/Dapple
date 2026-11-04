@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en" data-version="glass" data-appearance="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dapple Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap">
+<link rel="stylesheet" href="../src/tokens.css">
+<script src="clamps.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--dp-font);
+    font-size: 15px;
+    line-height: 1.47;
+    letter-spacing: -0.009em;
+    color: var(--dp-label);
+    background: #000;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-optical-sizing: auto;
+    user-select: none;
+  }
+  button { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: default; }
+  a { color: var(--dp-link); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 2px; }
+  :focus-visible { outline: 2px solid var(--dp-tint); outline-offset: 2px; }
+
+  .i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Wallpaper: a fine noise layer stops the gradients banding on 8-bit panels. */
+  .wall { position: fixed; inset: 0; background: var(--dp-canvas); }
+  .wall::before { content: ""; position: absolute; inset: 0; background: var(--dp-wall-image); }
+  @media (prefers-reduced-transparency: reduce) { .wall::before { display: none; } }
+  .wall::after {
+    content: ""; position: absolute; inset: 0; opacity: .035; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Shell */
+  .app { position: fixed; inset: 0; display: grid; grid-template-rows: var(--dp-topbar) minmax(0, 1fr); }
+  .panes {
+    display: grid; min-height: 0; gap: var(--dp-gap); padding: 0 var(--dp-gap) var(--dp-gap);
+    grid-template-columns: var(--dp-dock-w) var(--dp-sidebar-w) minmax(0, 1fr) var(--dp-inspector-w);
+  }
+  .panel {
+    position: relative; min-height: 0; overflow: hidden;
+    border-radius: var(--dp-r-panel);
+    background: var(--dp-panel-bg);
+    backdrop-filter: var(--dp-panel-filter);
+    box-shadow: var(--dp-panel-shadow);
+  }
+
+  /* Title bar */
+  .topbar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 14px; font-size: 13px; }
+  .lights { display: flex; gap: 8px; }
+  .lights span {
+    width: 12px; height: 12px; border-radius: 50%;
+    box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .14);
+    display: grid; place-items: center; font-size: 10px; line-height: 1; color: rgba(0, 0, 0, .58);
+  }
+  .lights span:nth-child(1) { background: #ff5f57; }
+  .lights span:nth-child(2) { background: #febc2e; }
+  .lights span:nth-child(3) { background: #28c840; }
+  .lights span::before { opacity: 0; transition: opacity 120ms; content: attr(data-g); font-weight: 700; }
+  .lights:hover span::before { opacity: 1; }
+  /* Text never sits directly on a wallpaper: on glass, these become small chips. */
+  .wintitle, .topbar .right {
+    border-radius: var(--dp-capsule); background: var(--dp-chip-bg); backdrop-filter: var(--dp-chip-filter); box-shadow: var(--dp-chip-shadow);
+  }
+  .wintitle { font-weight: 600; letter-spacing: -.006em; color: var(--dp-label); display: flex; align-items: center; gap: 7px; padding: 3px 12px 3px 6px; }
+  .wintitle i { width: 16px; height: 16px; border-radius: 6px; corner-shape: squircle; background: linear-gradient(135deg, #5e5ce6, #bf5af2); }
+  .topbar .right { display: flex; justify-self: end; gap: 2px; padding: 1px; color: var(--dp-label); }
+  .topbar .right button { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; transition: background var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap); }
+  .topbar .right button:hover { background: var(--dp-fill-3); color: var(--dp-label); }
+  .topbar .right button:active { transform: scale(.92); }
+
+  /* Dock: the server rail. Places are squircles, people are circles. */
+  .dock {
+    z-index: 5; background: var(--dp-dock-bg); backdrop-filter: var(--dp-dock-filter);
+    display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 0; overflow: visible;
+  }
+  .dock-item { position: relative; width: 44px; height: 44px; transform-origin: left center; transition: transform var(--dp-spring-t) var(--dp-spring); }
+  .dock-item:hover { transform: scale(1.16); z-index: 2; }
+  .dock-item:hover + .dock-item, .dock-item:has(+ .dock-item:hover) { transform: scale(1.07); }
+  .dock-item:active { transform: scale(1.04); transition-duration: var(--dp-snap-t); }
+  .tile {
+    width: 44px; height: 44px; display: grid; place-items: center;
+    border-radius: var(--dp-r-icon); corner-shape: squircle;
+    font: 600 15px/1 var(--dp-font-display); letter-spacing: -.01em; color: #fff;
+    box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .22), inset 0 1px .5px rgba(255, 255, 255, .32), 0 2px 6px rgba(0, 0, 0, .16);
+  }
+  .tile.plain { background: var(--dp-fill-3); color: var(--dp-label-2); box-shadow: none; }
+  /* Placeholder art. In Discord these are the real server icons and avatars. */
+  .t1 { background: linear-gradient(145deg, #1f7ae0, #0a56c8); }
+  .t2 { background: linear-gradient(145deg, #6a5cf0, #9a30cf); }
+  .t3 { background: linear-gradient(145deg, #c9400c, #b52a1f); }
+  .t4 { background: linear-gradient(145deg, #0a7d62, #0b6e6e); }
+  .t5 { background: linear-gradient(145deg, #d92a68, #a81859); }
+  .t6 { background: linear-gradient(145deg, #5a6478, #2c3345); }
+  .dock-item .dot { position: absolute; left: -9px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 4px; background: var(--dp-label); transition: height var(--dp-spring-t) var(--dp-spring), margin var(--dp-spring-t) var(--dp-spring); }
+  .dock-item.active .dot { height: 20px; margin-top: -10px; }
+  .dock-item .num {
+    position: absolute; right: -4px; bottom: -3px; min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 9px; background: var(--dp-badge); color: #fff; font: 600 11px/18px var(--dp-font); letter-spacing: 0; text-align: center;
+    box-shadow: 0 0 0 2px var(--dp-ring);
+  }
+  .dock hr { width: 26px; height: 1px; border: 0; background: var(--dp-hairline); margin: 2px 0; }
+  .dock .tip {
+    position: absolute; left: calc(100% + 12px); top: 50%; translate: 0 -50%; white-space: nowrap; pointer-events: none;
+    padding: 5px 10px; border-radius: 10px; font-size: 12.5px; font-weight: 500; color: var(--dp-label);
+    background: var(--dp-menu-bg); backdrop-filter: var(--dp-menu-filter); box-shadow: var(--dp-menu-shadow);
+    opacity: 0; transform: scale(.94); transform-origin: left center;
+    transition: opacity 120ms, transform var(--dp-snap-t) var(--dp-snap); z-index: 40;
+  }
+  .dock-item:hover .tip { opacity: 1; transform: scale(calc(1 / 1.16)); }
+
+  /* Sidebar: a source list */
+  .sidebar { display: flex; flex-direction: column; }
+  .server-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px; font: 600 15px/20px var(--dp-font-display); letter-spacing: -.006em; }
+  .server-head .i { width: 14px; height: 14px; color: var(--dp-label-3); }
+  .list { flex: 1; overflow-y: auto; padding: 0 8px 8px; min-height: 0; scrollbar-width: thin; scrollbar-color: transparent transparent; }
+  .list:hover { scrollbar-color: var(--dp-fill-1) transparent; }
+  .section { padding: 14px 10px 4px; font: 600 12px/16px var(--dp-font); letter-spacing: -.002em; color: var(--dp-label-3); }
+  .row {
+    position: relative; display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px;
+    border-radius: var(--dp-r-row); corner-shape: squircle;
+    font-size: 14px; font-weight: 450; letter-spacing: -.006em; color: var(--dp-label-2); white-space: nowrap;
+    transition: background-color var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap);
+  }
+  .row .i { width: 16px; height: 16px; color: var(--dp-label-3); }
+  .row:hover { background: var(--dp-fill-3); color: var(--dp-label); }
+  .row:active { transform: scale(.98); }
+  .row.unread { color: var(--dp-label); font-weight: 600; }
+  .row.unread::before { content: ""; position: absolute; left: -1px; width: 6px; height: 6px; margin-left: -1px; border-radius: 50%; background: var(--dp-tint); }
+  .row.selected { background: var(--dp-selected-bg); box-shadow: var(--dp-selected-shadow); color: var(--dp-on-accent); font-weight: 500; }
+  .row.selected .i { color: inherit; opacity: .9; }
+  .badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--dp-badge); color: #fff; font: 600 11px/18px var(--dp-font); letter-spacing: 0; text-align: center; }
+  .voice-users { display: flex; flex-direction: column; gap: 1px; margin: 1px 0 3px 34px; }
+  .voice-users div { display: flex; align-items: center; gap: 7px; height: 26px; font-size: 13px; color: var(--dp-label-2); }
+
+  .avatar { position: relative; flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font: 600 13px/1 var(--dp-font-display); color: #fff; }
+  .avatar.s20 { width: 20px; height: 20px; font-size: 11px; letter-spacing: -.04em; }
+  .avatar.s30 { width: 30px; height: 30px; font-size: 11px; }
+  .avatar.s40 { width: 40px; height: 40px; font-size: 14px; }
+  .a1 { background: linear-gradient(145deg, #c9400c, #c2255c); }
+  .a2 { background: linear-gradient(145deg, #1971c2, #1864ab); }
+  .a3 { background: linear-gradient(145deg, #7c5cf0, #6d28d9); }
+  .a4 { background: linear-gradient(145deg, #0b7d62, #0f766e); }
+  .a5 { background: linear-gradient(145deg, #c2570c, #a8440a); }
+  .a6 { background: linear-gradient(145deg, #64748b, #475569); }
+  .a7 { background: linear-gradient(145deg, #c026a3, #a21caf); }
+  .presence { position: absolute; right: -1px; bottom: -1px; width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 2px var(--dp-ring); }
+  .on { background: var(--dp-green); }
+  .idle { background: var(--dp-orange); }
+  .dnd { background: var(--dp-red); }
+
+  .me {
+    margin: 0 8px 8px; padding: 8px; display: flex; align-items: center; gap: 6px;
+    border-radius: var(--dp-r-card); corner-shape: squircle; background: var(--dp-fill-4);
+  }
+  .me .who { min-width: 0; flex: 1; line-height: 16px; }
+  .me .who b { display: block; font-size: 13px; font-weight: 600; letter-spacing: -.006em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .me .who span { font-size: 12px; color: var(--dp-label-3); }
+  .round { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--dp-label-2); transition: background var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap); }
+  .round .i { width: 17px; height: 17px; }
+  .round:hover { background: var(--dp-fill-2); color: var(--dp-label); }
+  .round:active { transform: scale(.9); }
+
+  /* Chat: content layer. Standard material, never glass. */
+  .chat { background: var(--dp-content-bg); backdrop-filter: var(--dp-content-filter); box-shadow: var(--dp-content-shadow); }
+  .scroller {
+    position: absolute; inset: 0; overflow-y: auto; padding: 72px 0 84px; user-select: text;
+    scrollbar-width: thin; scrollbar-color: transparent transparent;
+  }
+  .scroller:hover { scrollbar-color: var(--dp-fill-1) transparent; }
+
+  /* Scroll edge: a progressive blur where content meets the floating header. */
+  .chat-head { position: absolute; top: 0; left: 0; right: 0; z-index: 3; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 12px; }
+  /* A plain eased gradient. A masked backdrop blur left a hard cut where it ended. */
+  .edge {
+    position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: 88px; pointer-events: none;
+    background: linear-gradient(var(--dp-edge) 56%, color-mix(in srgb, var(--dp-edge) 62%, transparent) 74%, color-mix(in srgb, var(--dp-edge) 20%, transparent) 90%, transparent);
+  }
+  .edge.bottom {
+    top: auto; bottom: 0; height: 96px;
+    background: linear-gradient(to top, var(--dp-edge-bottom) 52%, color-mix(in srgb, var(--dp-edge-bottom) 62%, transparent) 72%, color-mix(in srgb, var(--dp-edge-bottom) 20%, transparent) 90%, transparent);
+  }
+  .title { position: relative; display: flex; align-items: center; gap: 7px; min-width: 0; height: 40px; padding: 0 16px 0 12px; border-radius: var(--dp-capsule); background: var(--dp-control-bg); backdrop-filter: var(--dp-control-filter); box-shadow: var(--dp-control-shadow); }
+  .title .i { color: var(--dp-label-3); }
+  .title h1 { font: 600 16px/22px var(--dp-font-display); letter-spacing: -.01em; white-space: nowrap; }
+  .topic { margin-left: 8px; padding-left: 12px; border-left: .5px solid var(--dp-label-4); font-size: 13px; color: var(--dp-label-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tools { position: relative; display: flex; align-items: center; gap: 8px; flex: none; }
+
+  .capsule {
+    display: flex; align-items: center; height: 40px; border-radius: var(--dp-capsule);
+    background: var(--dp-control-bg); backdrop-filter: var(--dp-control-filter); box-shadow: var(--dp-control-shadow);
+  }
+  .capsule.group { padding: 0 4px; gap: 0; }
+  .capsule .tool { width: 34px; height: 32px; display: grid; place-items: center; border-radius: var(--dp-capsule); color: var(--dp-label-2); transition: background var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap); }
+  .capsule .tool:hover { background: var(--dp-fill-3); color: var(--dp-label); }
+  .capsule .tool:active { transform: scale(.9); }
+  .capsule .tool.is-on { color: var(--dp-link); }
+  .search { width: 148px; padding: 0 12px; gap: 7px; font-size: 13.5px; color: var(--dp-label-3); }
+  .search .i { width: 15px; height: 15px; }
+
+  .daychip { display: block; text-align: center; font-size: 12px; font-weight: 500; color: var(--dp-label-3); margin: 6px 0 12px; }
+  .daychip b { font-weight: 600; color: var(--dp-label-2); }
+  .msg {
+    position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); column-gap: 12px;
+    margin: 0 8px; padding: 7px 12px; border-radius: var(--dp-r-row); corner-shape: squircle;
+    transition: background-color var(--dp-snap-t) var(--dp-snap);
+  }
+  .msg:hover { background: var(--dp-fill-4); }
+  .msg + .msg { margin-top: 6px; }
+  .head { display: flex; align-items: baseline; gap: 8px; line-height: 20px; }
+  .name { font-weight: 600; letter-spacing: -.012em; filter: var(--dp-name-filter); }
+  .time { font-size: 12px; color: var(--dp-label-3); letter-spacing: 0; }
+  .body { color: var(--dp-label); line-height: 22px; }
+  .mention { padding: 0 4px; border-radius: 6px; font-weight: 500; color: var(--dp-link); background: color-mix(in srgb, var(--dp-tint) 10%, transparent); }
+  .replied { grid-column: 2; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--dp-label-3); margin-bottom: 2px; }
+  .replied .i { width: 13px; height: 13px; transform: scaleY(-1); }
+  .replied b { font-weight: 600; color: var(--dp-label-2); }
+
+  .thumb { width: 360px; max-width: 100%; height: 176px; margin-top: 8px; border-radius: var(--dp-r-card); corner-shape: squircle; background: linear-gradient(135deg, #b4472a, #5b4bc4 55%, #1f2340); box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .14); }
+  .link-card { margin-top: 8px; max-width: 420px; padding: 11px 14px; border-radius: var(--dp-r-card); corner-shape: squircle; background: var(--dp-fill-4); box-shadow: inset 0 0 0 .5px var(--dp-hairline); }
+  .link-card small { display: block; font-size: 12px; color: var(--dp-label-3); }
+  .link-card a { display: block; font-weight: 600; letter-spacing: -.012em; }
+  .link-card p { font-size: 13.5px; line-height: 19px; color: var(--dp-label-2); }
+  .react { display: flex; gap: 5px; margin-top: 7px; }
+  .react button { display: flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: var(--dp-capsule); background: var(--dp-fill-3); font-size: 13px; font-weight: 500; color: var(--dp-label-2); transition: background var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap); }
+  .react button:hover { background: var(--dp-fill-2); }
+  .react button:active { transform: scale(.92); }
+  .react button.mine { background: color-mix(in srgb, var(--dp-tint) 10%, transparent); color: var(--dp-link); box-shadow: inset 0 0 0 .5px color-mix(in srgb, var(--dp-tint) 42%, transparent); }
+  pre { margin-top: 7px; padding: 11px 14px; border-radius: var(--dp-r-card); corner-shape: squircle; background: var(--dp-code-bg); box-shadow: inset 0 0 0 .5px var(--dp-hairline); font: 13px/20px var(--dp-font-mono); letter-spacing: 0; overflow: hidden; }
+  .k { color: var(--dp-code-keyword); } .s { color: var(--dp-code-string); } .n { color: var(--dp-code-number); } .c { color: var(--dp-code-comment); }
+  .newline { display: flex; align-items: center; gap: 10px; margin: 14px 20px 8px; font-size: 11.5px; font-weight: 600; color: var(--dp-red-text); }
+  .newline::before { content: ""; flex: 1; height: .5px; background: currentColor; opacity: .55; }
+
+  /* Composer: the one fixed-height capsule, so it gets the real lens. */
+  .composer {
+    position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 4; height: 52px; padding: 0 10px 0 8px; gap: 8px;
+    background: var(--dp-composer-bg);
+    backdrop-filter: var(--dp-control-filter-tall);
+  }
+  .composer .add { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--dp-fill-2); color: var(--dp-label); transition: transform var(--dp-snap-t) var(--dp-snap), background var(--dp-snap-t) var(--dp-snap); }
+  .composer .add:hover { background: var(--dp-fill-1); }
+  .composer .add:active { transform: scale(.9); }
+  .composer .ph { flex: 1; min-width: 0; font-size: 15px; color: var(--dp-label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .composer .round { color: var(--dp-label-2); }
+  .gif { font: 700 11px/1 var(--dp-font); letter-spacing: .02em; padding: 3px 4px; border-radius: 5px; box-shadow: inset 0 0 0 1.4px currentColor; }
+
+  /* Inspector: the member list */
+  .inspector { display: flex; flex-direction: column; }
+  .inspector .list { padding-top: 6px; }
+  .member { height: 40px; gap: 10px; padding: 0 8px; }
+  .member .avatar { width: 28px; height: 28px; font-size: 11px; }
+  .member .presence { width: 10px; height: 10px; }
+  .member .label { min-width: 0; line-height: 16px; }
+  .member .label b { display: block; font-size: 13.5px; font-weight: 500; letter-spacing: -.008em; filter: var(--dp-name-filter); }
+  .member .label span { display: block; font-size: 11.5px; color: var(--dp-label-3); overflow: hidden; text-overflow: ellipsis; }
+  .member.off .avatar { opacity: .5; }
+  .member.off .label b { color: var(--dp-label-3); }
+
+  /* Context menu: materializes from the pointer */
+  .menu {
+    position: fixed; z-index: 60; width: 232px; padding: 5px;
+    border-radius: var(--dp-r-menu);
+    background: var(--dp-menu-bg); backdrop-filter: var(--dp-menu-filter); box-shadow: var(--dp-menu-shadow);
+    font-size: 13px; letter-spacing: -.004em; transform-origin: top left; display: none;
+  }
+  .menu.open { display: block; animation: materialize var(--dp-sheet-t) var(--dp-sheet-ease) both; }
+  @keyframes materialize { from { opacity: 0; transform: scale(.9); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+  .menu button { width: 100%; height: 28px; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; border-radius: var(--dp-r-menu-row); corner-shape: squircle; text-align: left; }
+  .menu button .i { width: 12px; height: 12px; color: var(--dp-label-3); }
+  .menu button:hover { background: var(--dp-accent); color: #fff; }
+  .menu button:hover .i { color: inherit; }
+  .menu hr { height: .5px; margin: 4px 10px; border: 0; background: var(--dp-hairline); }
+  .menu .danger { color: var(--dp-red-text); }
+  .menu .danger:hover { background: var(--dp-badge); color: #fff; }
+
+  /* Sheet: the modal pattern, shown here as System Settings */
+  .scrim { position: fixed; inset: 0; z-index: 50; display: none; place-items: center; }
+  .scrim.open { display: grid; }
+  /* The fade lives on a pseudo-element on purpose. Animating opacity on the sheet's parent
+     makes it a backdrop root, and the sheet's blur would stop seeing the page behind it. */
+  .scrim::before { content: ""; position: absolute; inset: 0; background: var(--dp-scrim); animation: fade 200ms ease both; }
+  @keyframes fade { from { opacity: 0; } }
+  .sheet {
+    position: relative;
+    width: min(780px, calc(100vw - 48px)); height: min(540px, calc(100vh - 48px)); display: grid; grid-template-columns: 208px minmax(0, 1fr); overflow: hidden;
+    border-radius: var(--dp-r-sheet);
+    background: var(--dp-sheet-bg); backdrop-filter: var(--dp-sheet-filter); box-shadow: var(--dp-sheet-shadow);
+    animation: materialize var(--dp-sheet-t) var(--dp-sheet-ease) both;
+  }
+  .sheet aside { padding: 16px 8px; border-right: .5px solid var(--dp-hairline); }
+  .sheet aside h2 { padding: 2px 10px 8px; font: 600 13px/18px var(--dp-font); color: var(--dp-label-2); }
+  .sheet main { padding: 22px 24px; overflow-y: auto; }
+  .sheet main h3 { font: 600 22px/28px var(--dp-font-display); letter-spacing: -.016em; margin-bottom: 16px; }
+  .sheet .cap { font-size: 12px; font-weight: 600; color: var(--dp-label-3); margin: 18px 12px 6px; }
+  .grouped { border-radius: var(--dp-r-card); corner-shape: squircle; background: var(--dp-group-bg); box-shadow: 0 0 0 .5px var(--dp-hairline); }
+  .grouped > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; padding: 8px 14px; font-size: 14px; }
+  .grouped > div + div { border-top: .5px solid var(--dp-hairline); }
+  .grouped small { display: block; font-size: 12px; line-height: 16px; color: var(--dp-label-2); }
+  .sheet footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+  .switch { position: relative; width: 44px; height: 26px; flex: none; border-radius: 13px; background: var(--dp-fill-1); transition: background var(--dp-spring-t) var(--dp-spring); }
+  .switch::after { content: ""; position: absolute; left: 2px; top: 2px; width: 22px; height: 22px; border-radius: 11px; background: #fff; box-shadow: var(--dp-knob-shadow); transition: transform var(--dp-spring-t) var(--dp-spring), width var(--dp-snap-t) var(--dp-snap); }
+  .switch[aria-checked="true"] { background: var(--dp-green); }
+  .switch[aria-checked="true"]::after { transform: translateX(18px); }
+  .switch:active::after { width: 26px; }
+  .switch[aria-checked="true"]:active::after { transform: translateX(14px); }
+
+  .segmented { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; width: 250px; padding: 2px; border-radius: 10px; background: var(--dp-fill-3); font-size: 13px; font-weight: 500; }
+  .segmented button { position: relative; z-index: 1; height: 26px; border-radius: 8px; transition: background var(--dp-spring-t) var(--dp-spring), box-shadow var(--dp-spring-t) var(--dp-spring); }
+  .segmented button[aria-pressed="true"] { background: var(--dp-group-bg); box-shadow: 0 1px 3px rgba(0, 0, 0, .14), 0 0 0 .5px rgba(0, 0, 0, .05); }
+  [data-version="light"] .segmented button[aria-pressed="true"] { background: #fff; }
+  .slider { position: relative; width: 190px; height: 4px; border-radius: 2px; background: var(--dp-fill-1); }
+  .slider i { position: absolute; left: 0; top: 0; height: 100%; width: 54%; border-radius: 2px; background: var(--dp-accent); }
+  .slider b { position: absolute; left: 54%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: #fff; box-shadow: var(--dp-knob-shadow); }
+  .btn { height: 32px; padding: 0 16px; border-radius: var(--dp-capsule); font-size: 13.5px; font-weight: 500; background: var(--dp-fill-2); transition: transform var(--dp-snap-t) var(--dp-snap), background var(--dp-snap-t) var(--dp-snap); }
+  .btn:hover { background: var(--dp-fill-1); }
+  .btn:active { transform: scale(.96); }
+  .btn.primary { background: var(--dp-accent); color: var(--dp-on-accent); }
+  .btn.primary:hover { background: var(--dp-accent-hover); }
+
+  /* Review controls: deliberately neutral, so they don't read as part of the design */
+  .hud { position: fixed; right: 16px; bottom: 16px; z-index: 80; display: flex; align-items: center; gap: 6px; padding: 5px; border-radius: 14px; background: rgba(20, 20, 22, .84); color: #fff; font: 500 12.5px/1 var(--dp-font); backdrop-filter: blur(20px); box-shadow: 0 0 0 .5px rgba(255, 255, 255, .16), 0 10px 30px rgba(0, 0, 0, .4); }
+  .hud button { height: 28px; padding: 0 10px; border-radius: 10px; color: rgba(255, 255, 255, .78); }
+  .hud button:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+  .hud button[aria-pressed="true"] { background: #fff; color: #111; }
+  .hud .sep { width: 1px; height: 16px; background: rgba(255, 255, 255, .18); }
+  .hud #appearance { display: grid; place-items: center; padding: 0; width: 28px; }
+  .hud select { height: 28px; max-width: 118px; padding: 0 6px; border: 0; border-radius: 10px; background: rgba(255, 255, 255, .1); color: #fff; font: inherit; color-scheme: dark; }
+
+  /* Narrow previews: drop the inspector, then the sidebar, the way the real app would */
+  @media (max-width: 1040px) { .panes { grid-template-columns: var(--dp-dock-w) var(--dp-sidebar-w) minmax(0, 1fr); } .inspector { display: none; } .topic { display: none; } }
+  @media (max-width: 720px) { .panes { grid-template-columns: var(--dp-dock-w) minmax(0, 1fr); } .sidebar { display: none; } .search { display: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="hash" viewBox="0 0 24 24"><path d="M5 9h15M4 15h15M10 3 8 21M16 3l-2 18"/></symbol>
+  <symbol id="speaker" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4H4ZM15.5 9a4 4 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2h-15l1.5-2ZM10 21a2.2 2.2 0 0 0 4 0"/></symbol>
+  <symbol id="pin" viewBox="0 0 24 24"><path d="M9 4h6l-.8 5.5 2.8 3V14H7v-1.5l2.8-3L9 4ZM12 14v6.5"/></symbol>
+  <symbol id="users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.8 20a6.2 6.2 0 0 1 12.4 0M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4a6.2 6.2 0 0 1 3.4 5.6"/></symbol>
+  <symbol id="inbox" viewBox="0 0 24 24"><path d="M4 13.5 6.5 5h11l2.5 8.5V19H4v-5.5ZM4 13.5h5a3 3 0 0 0 6 0h5"/></symbol>
+  <symbol id="help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.7 2.2c-.8.5-1.3 1-1.3 2M12 17h.01"/></symbol>
+  <symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></symbol>
+  <symbol id="phones" viewBox="0 0 24 24"><path d="M4 14.5v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.8"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.8"/></symbol>
+  <symbol id="gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.6"/><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14a4 4 0 0 0 7 0M9 9.5h.01M15 9.5h.01"/></symbol>
+  <symbol id="thread" viewBox="0 0 24 24"><path d="M4 5.5h16v11h-9L6.5 20v-3.5H4v-11ZM8 9.5h8M8 13h5"/></symbol>
+  <symbol id="down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="next" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></symbol>
+  <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></symbol>
+  <symbol id="moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5Z"/></symbol>
+  <symbol id="reply" viewBox="0 0 24 24"><path d="m10 7-5 5 5 5M5 12h9a5 5 0 0 1 5 5v1"/></symbol>
+  <symbol id="bubble" viewBox="0 0 24 24"><path d="M12 4c5 0 9 3.1 9 7s-4 7-9 7c-1 0-2-.1-2.900-.4L5 20l.9-3.600C4.100 15.100 3 13.100 3 11c0-3.900 4-7 9-7Z"/></symbol>
+</defs></svg>
+
+<div class="wall"></div>
+
+<div class="app">
+  <div class="topbar">
+    <div class="lights" aria-label="Window controls"><span data-g="×"></span><span data-g="−"></span><span data-g="+"></span></div>
+    <div class="wintitle"><i></i>Studio Nine</div>
+    <div class="right">
+      <button aria-label="Inbox"><svg class="i"><use href="#inbox"/></svg></button>
+      <button aria-label="Help"><svg class="i"><use href="#help"/></svg></button>
+    </div>
+  </div>
+
+  <div class="panes">
+    <nav class="panel dock" aria-label="Servers">
+      <div class="dock-item"><div class="tile t1"><svg class="i" style="width:22px;height:22px"><use href="#bubble"/></svg></div><span class="tip">Direct Messages</span></div>
+      <hr>
+      <div class="dock-item active"><span class="dot"></span><div class="tile t2">S9</div><span class="tip">Studio Nine</span></div>
+      <div class="dock-item"><span class="dot"></span><div class="tile t3">Kn</div><span class="num">3</span><span class="tip">Kindling</span></div>
+      <div class="dock-item"><div class="tile t4">Ar</div><span class="tip">Arbor Collective</span></div>
+      <div class="dock-item"><div class="tile t5">Lo</div><span class="tip">Lo-Fi Lounge</span></div>
+      <div class="dock-item"><div class="tile t6">Fx</div><span class="tip">Framework Exchange</span></div>
+      <hr>
+      <div class="dock-item"><div class="tile plain"><svg class="i"><use href="#plus"/></svg></div><span class="tip">Add a Server</span></div>
+      <div class="dock-item"><div class="tile plain"><svg class="i"><use href="#compass"/></svg></div><span class="tip">Discover</span></div>
+    </nav>
+
+    <aside class="panel sidebar" aria-label="Channels">
+      <button class="server-head">Studio Nine <svg class="i"><use href="#down"/></svg></button>
+      <div class="list">
+        <div class="section" style="padding-top:6px">Information</div>
+        <button class="row" style="width:100%"><svg class="i"><use href="#hash"/></svg>welcome</button>
+        <button class="row" style="width:100%"><svg class="i"><use href="#hash"/></svg>announcements</button>
+        <div class="section">Studio</div>
+        <button class="row unread" style="width:100%"><svg class="i"><use href="#hash"/></svg>general</button>
+        <button class="row selected" style="width:100%"><svg class="i"><use href="#hash"/></svg>design-review</button>
+        <button class="row unread" style="width:100%"><svg class="i"><use href="#hash"/></svg>type-crit<span class="badge">2</span></button>
+        <button class="row" style="width:100%"><svg class="i"><use href="#hash"/></svg>ship-room</button>
+        <div class="section">Voice</div>
+        <button class="row" style="width:100%"><svg class="i"><use href="#speaker"/></svg>Lounge</button>
+        <div class="voice-users">
+          <div><span class="avatar s20 a3">JP</span>Jules Park</div>
+          <div><span class="avatar s20 a4">NH</span>Noor Haddad</div>
+        </div>
+        <button class="row" style="width:100%"><svg class="i"><use href="#speaker"/></svg>Focus Room</button>
+      </div>
+      <div class="me">
+        <span class="avatar a2" style="width:32px;height:32px;font-size:11.5px">SR<span class="presence on"></span></span>
+        <div class="who"><b>Sam Rivera</b><span>Online</span></div>
+        <button class="round" aria-label="Mute"><svg class="i"><use href="#mic"/></svg></button>
+        <button class="round" aria-label="Deafen"><svg class="i"><use href="#phones"/></svg></button>
+        <button class="round" id="openSheet" aria-label="User settings"><svg class="i"><use href="#gear"/></svg></button>
+      </div>
+    </aside>
+
+    <main class="panel chat" aria-label="Chat">
+      <div class="edge"></div>
+      <header class="chat-head">
+        <div class="title"><svg class="i"><use href="#hash"/></svg><h1>design-review</h1><span class="topic">Work in progress, kind feedback</span></div>
+        <div class="tools">
+          <div class="capsule group">
+            <button class="tool" aria-label="Threads"><svg class="i"><use href="#thread"/></svg></button>
+            <button class="tool" aria-label="Notifications"><svg class="i"><use href="#bell"/></svg></button>
+            <button class="tool" aria-label="Pins"><svg class="i"><use href="#pin"/></svg></button>
+            <button class="tool is-on" aria-label="Members"><svg class="i"><use href="#users"/></svg></button>
+          </div>
+          <div class="capsule search"><svg class="i"><use href="#search"/></svg>Search</div>
+        </div>
+      </header>
+
+      <div class="scroller" id="scroller">
+        <span class="daychip"><b>Today</b> 9:41 AM</span>
+
+        <article class="msg">
+          <span class="avatar s40 a1">MS</span>
+          <div>
+            <div class="head"><span class="name" style="color:var(--dp-role-pink)">Mika Sato</span><span class="time">9:41 AM</span></div>
+            <div class="body">First pass at the onboarding flow is up. The spacing feels right, but the second step still reads a little busy.</div>
+            <div class="thumb" role="img" aria-label="Attached mockup"></div>
+            <div class="link-card"><small>notes.studionine.example</small><a href="#">Onboarding v3 review notes</a><p>Open questions, decisions so far, and what we're cutting from the first release.</p></div>
+          </div>
+        </article>
+
+        <article class="msg">
+          <span class="avatar s40 a3">JP</span>
+          <div>
+            <div class="head"><span class="name" style="color:var(--dp-role-indigo)">Jules Park</span><span class="time">9:43 AM</span></div>
+            <div class="body"><span class="mention">@Mika Sato</span> agreed on step two. What if the helper text moves under the field instead of beside it?</div>
+          </div>
+        </article>
+
+        <article class="msg">
+          <span class="avatar s40 a5">RO</span>
+          <div>
+            <div class="head"><span class="name" style="color:var(--dp-role-orange)">Ren Okafor</span><span class="time">9:44 AM</span></div>
+            <div class="body">Good call. If a control needs a caption to make sense, it's usually in the wrong place.</div>
+            <div class="react"><button class="mine">👍 4</button><button>🎯 2</button><button aria-label="Add reaction"><svg class="i" style="width:15px;height:15px"><use href="#smile"/></svg></button></div>
+          </div>
+        </article>
+
+        <article class="msg">
+          <span class="avatar s40 a4">NH</span>
+          <div class="replied"><svg class="i"><use href="#reply"/></svg><b>Mika Sato</b> First pass at the onboarding flow is up…</div>
+          <div style="grid-column:2">
+            <div class="head"><span class="name" style="color:var(--dp-role-teal)">Noor Haddad</span><span class="time">9:46 AM</span></div>
+            <div class="body">Pushed the new tokens. Corners are concentric now, so the inner radius is the outer radius minus the padding.</div>
+            <pre><span class="c">/* outer 20, padding 8, inner 12 */</span>
+<span class="k">.card</span> { <span class="k">border-radius</span>: <span class="n">20px</span>; <span class="k">padding</span>: <span class="n">8px</span>; }
+<span class="k">.card img</span> { <span class="k">border-radius</span>: <span class="n">12px</span>; <span class="k">content</span>: <span class="s">"concentric"</span>; }</pre>
+          </div>
+        </article>
+
+        <div class="newline">New</div>
+
+        <article class="msg">
+          <span class="avatar s40 a6">TL</span>
+          <div>
+            <div class="head"><span class="name" style="color:var(--dp-role-green)">Theo Lind</span><span class="time">9:47 AM</span></div>
+            <div class="body">Looks great in both appearances. Testing with Reduce Transparency turned on next, and I'll check the contrast on the lighter wallpapers while I'm in there.</div>
+          </div>
+        </article>
+
+        <article class="msg">
+          <span class="avatar s40 a1">MS</span>
+          <div>
+            <div class="head"><span class="name" style="color:var(--dp-role-pink)">Mika Sato</span><span class="time">9:49 AM</span></div>
+            <div class="body">Perfect. I'll move the helper text and post a new build before lunch, then we can walk through the whole flow together this afternoon.</div>
+          </div>
+        </article>
+      </div>
+
+      <div class="edge bottom"></div>
+      <div class="capsule composer">
+        <button class="add" aria-label="Add attachment"><svg class="i"><use href="#plus"/></svg></button>
+        <div class="ph">Message #design-review</div>
+        <button class="round" aria-label="GIF"><span class="gif">GIF</span></button>
+        <button class="round" aria-label="Emoji"><svg class="i" style="width:19px;height:19px"><use href="#smile"/></svg></button>
+      </div>
+    </main>
+
+    <aside class="panel inspector" aria-label="Members">
+      <div class="list">
+        <div class="section" style="padding-top:8px">Online · 5</div>
+        <button class="row member" style="width:100%"><span class="avatar a5">RO<span class="presence on"></span></span><span class="label" style="text-align:left"><b style="color:var(--dp-role-orange)">Ren Okafor</b><span>Reviewing builds</span></span></button>
+        <button class="row member" style="width:100%"><span class="avatar a1">MS<span class="presence on"></span></span><span class="label" style="text-align:left"><b style="color:var(--dp-role-pink)">Mika Sato</b></span></button>
+        <button class="row member" style="width:100%"><span class="avatar a3">JP<span class="presence dnd"></span></span><span class="label" style="text-align:left"><b style="color:var(--dp-role-indigo)">Jules Park</b><span>In a focus block</span></span></button>
+        <button class="row member" style="width:100%"><span class="avatar a4">NH<span class="presence on"></span></span><span class="label" style="text-align:left"><b style="color:var(--dp-role-teal)">Noor Haddad</b></span></button>
+        <button class="row member" style="width:100%"><span class="avatar a6">TL<span class="presence idle"></span></span><span class="label" style="text-align:left"><b style="color:var(--dp-role-green)">Theo Lind</b></span></button>
+        <div class="section">Offline · 2</div>
+        <button class="row member off" style="width:100%"><span class="avatar a7">AS</span><span class="label" style="text-align:left"><b>Ari Stone</b></span></button>
+        <button class="row member off" style="width:100%"><span class="avatar a2">KV</span><span class="label" style="text-align:left"><b>Kai Voss</b></span></button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="menu" id="menu" role="menu">
+  <button>Mark as Read</button>
+  <button>Mute Channel<svg class="i"><use href="#next"/></svg></button>
+  <button>Notification Settings<svg class="i"><use href="#next"/></svg></button>
+  <hr>
+  <button>Copy Link</button>
+  <button>Edit Channel</button>
+  <hr>
+  <button class="danger">Delete Channel</button>
+</div>
+
+<div class="scrim" id="scrim">
+  <section class="sheet" role="dialog" aria-label="Settings">
+    <aside>
+      <h2>Settings</h2>
+      <button class="row" style="width:100%">My Account</button>
+      <button class="row" style="width:100%">Privacy</button>
+      <button class="row selected" style="width:100%">Appearance</button>
+      <button class="row" style="width:100%">Notifications</button>
+      <button class="row" style="width:100%">Voice &amp; Video</button>
+      <button class="row" style="width:100%">Keybinds</button>
+    </aside>
+    <main>
+      <h3>Appearance</h3>
+      <div class="grouped">
+        <div><span>Theme</span><div class="segmented" id="seg"><button aria-pressed="true">Light</button><button aria-pressed="false">Dark</button><button aria-pressed="false">Sync</button></div></div>
+        <div><span>Chat font size</span><div class="slider"><i></i><b></b></div></div>
+      </div>
+      <div class="cap">Chat</div>
+      <div class="grouped">
+        <div><span>Show avatars<small>Display profile pictures next to messages.</small></span><button class="switch" role="switch" aria-checked="true" aria-label="Show avatars"></button></div>
+        <div><span>Compact mode</span><button class="switch" role="switch" aria-checked="false" aria-label="Compact mode"></button></div>
+        <div><span>Reduce motion</span><button class="switch" role="switch" aria-checked="false" aria-label="Reduce motion"></button></div>
+      </div>
+      <footer><button class="btn" id="closeSheet">Cancel</button><button class="btn primary" id="doneSheet">Done</button></footer>
+    </main>
+  </section>
+</div>
+
+<div class="hud" role="group" aria-label="Preview controls">
+  <button data-set="glass" aria-pressed="true">Liquid Glass</button>
+  <button data-set="light" aria-pressed="false">Light</button>
+  <button data-set="dark" aria-pressed="false">Dark</button>
+  <span class="sep" id="appSep"></span>
+  <button id="appearance" aria-label="Switch glass appearance"><svg class="i" style="width:15px;height:15px"><use id="appIcon" href="#sun"/></svg></button>
+  <select id="wallPick" aria-label="Wallpaper">
+    <option selected>Blue</option><option>Skyblue</option><option>Green</option><option>Yellow</option>
+    <option>Orange</option><option>Red</option><option>Purple</option><option>Silver</option>
+    <option>GoldenGate</option>
+  </select>
+</div>
+
+<script>
+  // Builds the rim lens. The theme will ship these as static strings; here they stay parametric
+  // so the strength can still be tuned during design review.
+  const lens = (h, rim, scale) => {
+    const W = 4000, std = rim / 2;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg'><filter id='l' x='0' y='0' width='${W}' height='${h}' filterUnits='userSpaceOnUse' primitiveUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-color='rgb(128,128,0)' x='0' y='0' width='${W}' height='${h}' result='n'/><feFlood flood-color='rgb(128,255,0)' x='0' y='0' width='${W}' height='${rim}' result='t'/><feFlood flood-color='rgb(128,0,0)' x='0' y='${h - rim}' width='${W}' height='${rim}' result='b'/><feMerge result='m0'><feMergeNode in='n'/><feMergeNode in='t'/><feMergeNode in='b'/></feMerge><feGaussianBlur in='m0' stdDeviation='${std}' result='m'/><feDisplacementMap in='SourceGraphic' in2='m' scale='${scale}' xChannelSelector='R' yChannelSelector='G'/></filter></svg>`;
+    return `url("data:image/svg+xml,${encodeURIComponent(svg)}#l")`;
+  };
+  const root = document.documentElement;
+  root.style.setProperty('--dp-lens-composer', lens(52, 10, 22));
+  root.style.setProperty('--dp-lens-tool', lens(40, 8, 16));
+
+  const set = version => {
+    root.dataset.version = version;
+    document.querySelectorAll('[data-set]').forEach(b => b.setAttribute('aria-pressed', b.dataset.set === version));
+    const glass = version === 'glass';
+    document.getElementById('appearance').style.display = glass ? '' : 'none';
+    document.getElementById('appSep').style.display = glass ? '' : 'none';
+    if (!glass) root.dataset.appearance = version;
+    else if (!root.dataset.glassAppearance) root.dataset.appearance = 'dark';
+    else root.dataset.appearance = root.dataset.glassAppearance;
+    syncIcon();
+    applyWall();
+  };
+  const syncIcon = () => document.getElementById('appIcon').setAttribute('href', root.dataset.appearance === 'dark' ? '#sun' : '#moon');
+  // Wave wallpapers come in Light and Dark pairs, so the image follows the appearance.
+  const wallPick = document.getElementById('wallPick');
+  const applyWall = () => {
+    const name = wallPick.value;
+    const file = name === 'GoldenGate' ? 'GoldenGate_Mac+2' : `${name}_${root.dataset.appearance === 'dark' ? 'Dark' : 'Light'}`;
+    root.style.setProperty('--dp-wall-image', `url("../assets/${file}.png") center / cover no-repeat`);
+    for (const [k, v] of Object.entries(window.DAPPLE_CLAMPS?.[name] ?? {})) root.style.setProperty(k, v);
+  };
+  wallPick.onchange = applyWall;
+  document.querySelectorAll('[data-set]').forEach(b => b.onclick = () => set(b.dataset.set));
+  document.getElementById('appearance').onclick = () => {
+    root.dataset.appearance = root.dataset.appearance === 'dark' ? 'light' : 'dark';
+    root.dataset.glassAppearance = root.dataset.appearance;
+    syncIcon();
+    applyWall();
+  };
+
+  const menu = document.getElementById('menu');
+  const closeMenu = () => menu.classList.remove('open');
+  document.addEventListener('contextmenu', e => {
+    if (e.target.closest('.hud')) return;
+    e.preventDefault();
+    closeMenu();
+    void menu.offsetWidth; // restart the arrival animation on repeat right-clicks
+    menu.style.left = Math.min(e.clientX, innerWidth - 244) + 'px';
+    menu.style.top = Math.min(e.clientY, innerHeight - 250) + 'px';
+    menu.classList.add('open');
+  });
+  document.addEventListener('pointerdown', e => { if (!e.target.closest('.menu')) closeMenu(); });
+
+  const scrim = document.getElementById('scrim');
+  const closeSheet = () => scrim.classList.remove('open');
+  document.getElementById('openSheet').onclick = () => scrim.classList.add('open');
+  document.getElementById('closeSheet').onclick = closeSheet;
+  document.getElementById('doneSheet').onclick = closeSheet;
+  scrim.onclick = e => { if (e.target === scrim) closeSheet(); };
+  document.querySelectorAll('.switch').forEach(s => s.onclick = () => s.setAttribute('aria-checked', s.getAttribute('aria-checked') !== 'true'));
+  document.querySelectorAll('#seg button').forEach(b => b.onclick = () => document.querySelectorAll('#seg button').forEach(o => o.setAttribute('aria-pressed', o === b)));
+
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeMenu(); closeSheet(); }
+    const versions = { 1: 'glass', 2: 'light', 3: 'dark' };
+    if (versions[e.key]) set(versions[e.key]);
+  });
+
+  // Rest a little above the bottom so a line of text sits under the composer, showing the lens.
+  const sc = document.getElementById('scroller');
+  sc.scrollTop = sc.scrollHeight - sc.clientHeight - 52;
+
+  const q = new URLSearchParams(location.search);
+  if (q.get('version')) set(q.get('version'));
+  if (q.get('appearance')) { root.dataset.appearance = q.get('appearance'); root.dataset.glassAppearance = q.get('appearance'); syncIcon(); }
+  if (q.has('wall')) wallPick.value = q.get('wall');
+  applyWall();
+  if (q.has('sheet')) scrim.classList.add('open');
+</script>
+</body>
+</html>

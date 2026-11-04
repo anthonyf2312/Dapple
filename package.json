@@ -1,0 +1,18 @@
+{
+  "name": "dapple",
+  "version": "1.0.0",
+  "private": true,
+  "description": "What if Apple designed Discord. A Liquid Glass theme for Equicord, Vencord and BetterDiscord.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthonyf2312/Dapple.git"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
+  }
+}

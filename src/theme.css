@@ -1,0 +1,864 @@
+/* ==========================================================================
+   Dapple: what if Apple designed Discord.
+
+   Written against the live client. `~name` is a build macro that matches one
+   exact class stem, so these selectors survive Discord's hash rotations.
+   Prefer tokens, then role and data attributes, then stems.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Discord's tokens
+   -------------------------------------------------------------------------- */
+
+%ALL% {
+  --font-primary: var(--dp-font);
+  --font-display: var(--dp-font-display);
+  --font-headline: var(--dp-font-display);
+  --font-code: var(--dp-font-mono);
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+
+  /* Nitro client themes would otherwise tint every surface. */
+  --custom-theme-base-color-amount: 0%;
+  --custom-theme-text-color-amount: 0%;
+  --custom-theme-border-color-amount: 0%;
+
+  --custom-app-top-bar-height: var(--dp-topbar);
+  --custom-guild-list-padding: 12px;
+
+  /* Surfaces: the glass lives on the panels, so most of Discord's fills go clear. */
+  --background-base-lowest: transparent;
+  --background-base-lower: transparent;
+  --background-base-low: transparent;
+  --background-surface-high: var(--dp-surface-1);
+  --background-surface-higher: var(--dp-surface-2);
+  --background-surface-highest: var(--dp-surface-3);
+  --background-secondary-alt: var(--dp-fill-4);
+  --background-code: var(--dp-code-bg);
+  --background-mod-subtle: var(--dp-fill-4);
+  --background-mod-muted: var(--dp-fill-3);
+  --background-mod-normal: var(--dp-fill-2);
+  --background-mod-strong: var(--dp-fill-1);
+  --background-brand: var(--dp-accent);
+  --background-accent: var(--dp-accent);
+  --background-scrim: var(--dp-scrim);
+  --background-scrim-lightbox: rgba(0, 0, 0, 0.72);
+  --chat-background: transparent;
+  --chat-background-default: transparent;
+  --channel-background-default: transparent;
+  --panel-bg: transparent;
+  --app-frame-background: transparent;
+  --app-frame-border: transparent;
+  --chat-border: var(--dp-hairline);
+  --channeltextarea-background: transparent;
+  --modal-background: var(--dp-surface-3);
+  --modal-footer-background: transparent;
+  --message-background-hover: var(--dp-fill-4);
+  --message-mentioned-background-default: color-mix(in srgb, var(--dp-orange) 10%, transparent);
+  --message-mentioned-background-hover: color-mix(in srgb, var(--dp-orange) 14%, transparent);
+  --message-highlight-background-default: color-mix(in srgb, var(--dp-tint) 10%, transparent);
+  --message-highlight-background-hover: color-mix(in srgb, var(--dp-tint) 14%, transparent);
+
+  /* Text and icons */
+  --text-default: var(--dp-label);
+  --text-strong: var(--dp-label);
+  --text-muted: var(--dp-label-2);
+  --text-subtle: var(--dp-label-3);
+  --text-link: var(--dp-link);
+  --text-brand: var(--dp-link);
+  --text-code: var(--dp-label);
+  --chat-text-muted: var(--dp-label-3);
+  --channels-default: var(--dp-label-2);
+  --channel-icon: var(--dp-label-3);
+  --channel-text-area-placeholder: var(--dp-label-3);
+  --icon-default: var(--dp-label-2);
+  --icon-strong: var(--dp-label);
+  --icon-muted: var(--dp-label-3);
+  --icon-subtle: var(--dp-label-3);
+  --icon-link: var(--dp-link);
+  --icon-brand: var(--dp-link);
+
+  /* Hairlines */
+  --border-subtle: var(--dp-hairline);
+  --border-muted: var(--dp-hairline);
+  --border-normal: var(--dp-hairline);
+  --border-strong: var(--dp-label-4);
+  --border-focus: var(--dp-tint);
+
+  /* Interaction */
+  --interactive-text-default: var(--dp-label-2);
+  --interactive-text-hover: var(--dp-label);
+  --interactive-text-active: var(--dp-label);
+  --interactive-muted: var(--dp-label-4);
+  --interactive-icon-default: var(--dp-label-2);
+  --interactive-icon-hover: var(--dp-label);
+  --interactive-icon-active: var(--dp-label);
+  --interactive-background-default: transparent;
+  --interactive-background-hover: var(--dp-fill-3);
+  --interactive-background-active: var(--dp-fill-2);
+  --interactive-background-selected: var(--dp-fill-2);
+
+  /* Inputs and controls */
+  --input-background-default: var(--dp-fill-4);
+  --input-border-default: transparent;
+  --input-border-hover: var(--dp-hairline);
+  --input-text-default: var(--dp-label);
+  --input-placeholder-text-default: var(--dp-label-3);
+  --input-icon-default: var(--dp-label-2);
+  --control-brand-foreground: var(--dp-link);
+  --control-brand-foreground-new: var(--dp-link);
+  --control-primary-background-default: var(--dp-accent);
+  --control-primary-background-hover: var(--dp-accent-hover);
+  --control-primary-background-active: var(--dp-accent-hover);
+  --control-primary-border-default: transparent;
+  --control-primary-border-hover: transparent;
+  --control-primary-border-active: transparent;
+  --control-primary-text-default: var(--dp-on-accent);
+  --control-primary-text-hover: var(--dp-on-accent);
+  --control-primary-text-active: var(--dp-on-accent);
+  --control-primary-icon-default: var(--dp-on-accent);
+  --control-primary-icon-hover: var(--dp-on-accent);
+  --control-primary-icon-active: var(--dp-on-accent);
+  --control-secondary-background-default: var(--dp-fill-2);
+  --control-secondary-background-hover: var(--dp-fill-1);
+  --control-secondary-background-active: var(--dp-fill-1);
+  --control-secondary-border-default: transparent;
+  --control-secondary-border-hover: transparent;
+  --control-secondary-border-active: transparent;
+  --control-secondary-text-default: var(--dp-label);
+  --control-secondary-text-hover: var(--dp-label);
+  --control-secondary-text-active: var(--dp-label);
+  --control-secondary-icon-default: var(--dp-label);
+  --control-secondary-icon-hover: var(--dp-label);
+  --control-secondary-icon-active: var(--dp-label);
+
+  /* The accent, wherever Discord still reaches for blurple */
+  --brand-500: var(--dp-accent);
+  --brand-500-hsl: 210 100% 44.5%;
+  --blurple-50: var(--dp-accent);
+  --blurple-50-hsl: 210 100% 44.5%;
+
+  /* System status colours */
+  --status-positive: var(--dp-green);
+  --status-danger: var(--dp-red);
+  --status-warning: var(--dp-orange);
+  --status-online: var(--dp-green);
+  --status-speaking: var(--dp-green);
+  --icon-status-online: var(--dp-green);
+  --icon-status-idle: var(--dp-orange);
+  --icon-status-dnd: var(--dp-red);
+  --text-status-online: var(--dp-green);
+  --text-status-idle: var(--dp-orange);
+  --text-status-dnd: var(--dp-red);
+  --text-feedback-critical: var(--dp-red-text);
+
+  /* Overlay scrollbars */
+  --scrollbar-auto-thumb: var(--dp-fill-1);
+  --scrollbar-auto-track: transparent;
+  --scrollbar-thin-thumb: var(--dp-fill-1);
+  --scrollbar-thin-track: transparent;
+  --scrollbar-auto-scrollbar-color-thumb: var(--dp-fill-1);
+  --scrollbar-auto-scrollbar-color-track: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   2. Wallpaper and window
+   -------------------------------------------------------------------------- */
+
+html {
+  background: none !important;
+}
+
+body {
+  background: var(--dp-wallpaper) center / cover no-repeat fixed var(--dp-canvas) !important;
+}
+
+#app-mount,
+~appMount,
+~bg,
+~app,
+~layers,
+~layer,
+~baseLayer,
+~appAsidePanelWrapper,
+~notAppAsidePanel,
+[data-fullscreen],
+[data-fullscreen] > ~content,
+[data-fullscreen] ~sidebar,
+[data-fullscreen] ~sidebarList,
+[data-fullscreen] ~page,
+[data-fullscreen] ~page > div,
+~channelArea,
+~chat {
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Floating panes: the grid gap is the space between them. */
+[data-fullscreen] {
+  column-gap: var(--dp-gap);
+  padding-inline: var(--dp-gap);
+  padding-block-end: var(--dp-gap);
+}
+
+[data-fullscreen] > ~bar {
+  margin-inline: calc(-1 * var(--dp-gap));
+}
+
+[data-fullscreen] ~sidebar::after {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   3. Title bar and traffic lights
+   -------------------------------------------------------------------------- */
+
+[data-fullscreen] > ~bar {
+  background: none !important;
+  padding-inline: 14px;
+  align-items: center;
+}
+
+[data-fullscreen] > ~bar ~leading {
+  padding-inline-start: 72px;
+}
+
+/* Text never sits directly on a wallpaper, so the bar's contents become small chips. */
+~backForwardButtons,
+[data-fullscreen] > ~bar > ~title > * {
+  align-items: center;
+  height: 28px;
+  padding-inline: 8px;
+  border-radius: var(--dp-capsule);
+  background: var(--dp-chip-bg);
+  backdrop-filter: var(--dp-chip-filter);
+  box-shadow: var(--dp-chip-shadow);
+  color: var(--dp-label);
+}
+
+[data-fullscreen] > ~bar > ~title {
+  align-items: center;
+}
+
+[data-fullscreen] > ~bar > ~title > * {
+  gap: 6px;
+  padding-inline: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+[data-fullscreen] > ~bar ~guildIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  corner-shape: squircle;
+}
+
+/* The chip is a pseudo-element on purpose. The window buttons live inside this element, and
+   backdrop-filter on it would become their containing block and trap them here. */
+[data-fullscreen] > ~bar ~trailing {
+  position: relative;
+  height: 28px;
+  padding-inline: 8px;
+  gap: 4px;
+  color: var(--dp-label);
+}
+
+[data-fullscreen] > ~bar ~trailing::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--dp-capsule);
+  background: var(--dp-chip-bg);
+  backdrop-filter: var(--dp-chip-filter);
+  box-shadow: var(--dp-chip-shadow);
+}
+
+/* The real window buttons, restyled, so minimise, maximise and close all still work. */
+~winButtons {
+  position: fixed !important;
+  top: calc((var(--dp-topbar) - 12px) / 2);
+  left: 16px;
+  z-index: 10000;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  -webkit-app-region: no-drag;
+}
+
+~winButtons::before {
+  display: none !important;
+}
+
+~winButton {
+  position: relative !important;
+  top: 0 !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50%;
+  color: rgba(0, 0, 0, 0.58) !important;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.14);
+  transition: background-color var(--dp-snap-t) var(--dp-snap);
+}
+
+~winButton svg {
+  display: none;
+}
+
+/* A 12px dot is a hard target, so the hit area reaches past it. */
+~winButton::before {
+  content: "";
+  position: absolute;
+  inset: -6px -4px;
+}
+
+~winButton::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 10px/12px var(--dp-font);
+  opacity: 0;
+}
+
+~winButtons:hover ~winButton::after {
+  opacity: 1;
+}
+
+~winButtonClose {
+  order: -1;
+  background: #ff5f57 !important;
+}
+
+~winButtonClose::after {
+  content: "\00d7";
+}
+
+~winButtonMinMax:nth-child(1) {
+  background: #febc2e !important;
+}
+
+~winButtonMinMax:nth-child(1)::after {
+  content: "\2212";
+}
+
+~winButtonMinMax:nth-child(2) {
+  background: #28c840 !important;
+}
+
+~winButtonMinMax:nth-child(2)::after {
+  content: "+";
+}
+
+/* Like macOS: the lights go grey when the window loses focus, until you hover them. */
+html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
+  background: var(--dp-fill-1) !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Dock: the server rail
+   -------------------------------------------------------------------------- */
+
+[data-fullscreen] ~guilds {
+  z-index: 5;
+  height: 100%;
+  margin: 0;
+  border-radius: var(--dp-r-panel);
+  background: var(--dp-dock-bg);
+  backdrop-filter: var(--dp-dock-filter);
+  box-shadow: var(--dp-panel-shadow);
+}
+
+/* The first icon sits as far from the top of the Dock as from its sides.
+   Discord sets this padding inline, so only !important can override it. */
+[data-list-id="guildsnav"] ~scroller {
+  padding-block-start: var(--custom-guild-list-padding) !important;
+}
+
+/* Places are squircles, people are circles. */
+[data-list-id="guildsnav"] foreignObject {
+  mask: none !important;
+}
+
+[data-list-id="guildsnav"] foreignObject > div,
+[data-list-id="guildsnav"] foreignObject img,
+[data-list-id="guildsnav"] ~childWrapper {
+  border-radius: var(--dp-r-icon) !important;
+  corner-shape: squircle;
+}
+
+/* Magnification, with the neighbours following. */
+[data-list-id="guildsnav"] ~listItem {
+  transition: transform var(--dp-spring-t) var(--dp-spring);
+}
+
+[data-list-id="guildsnav"] ~listItem:hover {
+  transform: scale(1.12);
+  z-index: 2;
+}
+
+[data-list-id="guildsnav"] ~listItem:hover + ~listItem,
+[data-list-id="guildsnav"] ~listItem:has(+ ~listItem:hover) {
+  transform: scale(1.05);
+}
+
+[data-list-id="guildsnav"] ~listItem:active {
+  transform: scale(1.03);
+  transition-duration: var(--dp-snap-t);
+}
+
+[data-list-id="guildsnav"] ~item {
+  width: 4px;
+  border-radius: 4px;
+  background: var(--dp-label);
+}
+
+~numberBadge {
+  background: var(--dp-badge) !important;
+  color: #fff !important;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* --------------------------------------------------------------------------
+   5. Sidebar: a source list
+   -------------------------------------------------------------------------- */
+
+[data-fullscreen] ~sidebarList {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--dp-r-panel) !important;
+  background: var(--dp-panel-bg) !important;
+  backdrop-filter: var(--dp-panel-filter);
+  box-shadow: var(--dp-panel-shadow);
+}
+
+[data-fullscreen] ~sidebarList > nav {
+  background: none;
+}
+
+/* Discord's banner scrims read as clutter on glass, but something has to keep the server
+   name legible over a bright banner. So, like the title bar, the name becomes a glass chip. */
+~headerEllipseBackdrop,
+~headerEllipseForeground,
+~headerGlass {
+  display: none;
+}
+
+[data-has-banner="true"] ~headerContent {
+  flex: 0 1 auto;
+  height: 32px;
+  margin-block-start: 6px;
+  padding-inline: 10px 8px;
+  border-radius: var(--dp-capsule);
+  background: var(--dp-chip-bg);
+  backdrop-filter: var(--dp-chip-filter);
+  box-shadow: var(--dp-chip-shadow);
+}
+
+[data-has-banner="true"] ~headerContent * {
+  color: var(--dp-label) !important;
+}
+
+~containerDefault ~link {
+  min-height: 32px;
+  padding-inline: 10px;
+  border-radius: var(--dp-r-row);
+  corner-shape: squircle;
+  transition: background-color var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap);
+}
+
+~containerDefault ~link:active {
+  transform: scale(0.98);
+}
+
+~containerDefault ~name {
+  font-size: 14px;
+  letter-spacing: -0.006em;
+}
+
+/* One solid accent row, like Messages and System Settings. */
+~modeSelected ~link {
+  background: var(--dp-selected-bg) !important;
+  box-shadow: var(--dp-selected-shadow);
+}
+
+~modeSelected ~link,
+~modeSelected ~link * {
+  color: var(--dp-on-accent) !important;
+}
+
+~modeSelected ~link svg {
+  fill: currentColor;
+}
+
+/* Unread: a blue dot, like Messages. */
+~containerDefault ~unread {
+  left: 2px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--dp-tint);
+}
+
+/* --------------------------------------------------------------------------
+   6. User panel
+   -------------------------------------------------------------------------- */
+
+[data-fullscreen] ~panels {
+  inset-inline-start: calc(var(--custom-guild-list-width) + var(--dp-gap) * 2 + 8px) !important;
+  inset-inline-end: 8px;
+  bottom: 8px;
+  width: auto !important;
+  border: 0;
+  border-radius: var(--dp-r-card);
+  background: var(--dp-chip-bg) !important;
+  backdrop-filter: var(--dp-chip-filter);
+  box-shadow: var(--dp-chip-shadow);
+}
+
+/* The list stops just above the user panel. Discord reserves 10px too little for it here. */
+[id="channels"] {
+  margin-block-end: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   7. Chat: the content layer
+   -------------------------------------------------------------------------- */
+
+~content:has(> ~chatContent) {
+  gap: var(--dp-gap);
+}
+
+~chatContent {
+  anchor-name: --dp-main;
+  overflow: hidden;
+  border-radius: var(--dp-r-panel);
+  background: var(--dp-content-bg) !important;
+  backdrop-filter: var(--dp-content-filter);
+  box-shadow: var(--dp-content-shadow);
+}
+
+/* The header sits over chat only. Anchoring it to main means it follows the member list,
+   thread panels and profile panels without knowing about any of them. */
+~subtitleContainer {
+  position: absolute;
+  z-index: 6;
+  top: anchor(--dp-main top);
+  left: anchor(--dp-main left);
+  right: anchor(--dp-main right);
+  background: none;
+}
+
+~subtitleContainer > section {
+  position: relative;
+  height: 60px;
+  padding-inline: 12px;
+  border: 0 !important;
+  background: none !important;
+}
+
+/* The scroll edge: an eased fade, rounded to match the panel it sits on. A masked backdrop blur
+   would leave a hard cut, and a square fade would cover the corners. */
+~subtitleContainer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -32px;
+  border-start-start-radius: var(--dp-r-panel);
+  border-start-end-radius: var(--dp-r-panel);
+  pointer-events: none;
+  background: linear-gradient(var(--dp-edge) 56%, color-mix(in srgb, var(--dp-edge) 62%, transparent) 74%, color-mix(in srgb, var(--dp-edge) 20%, transparent) 90%, transparent);
+}
+
+~upperContainer {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+~upperContainer > ~toolbar {
+  flex: none;
+  margin-inline-start: auto;
+}
+
+/* The title floats in its own chip, so it stays legible over whatever scrolls beneath it. */
+~upperContainer > ~children {
+  flex: 0 1 auto;
+  height: 40px;
+  min-width: 0;
+  padding-inline: 12px 16px;
+  border-radius: var(--dp-capsule);
+  background: var(--dp-control-bg);
+  backdrop-filter: var(--dp-control-filter);
+  box-shadow: var(--dp-control-shadow);
+}
+
+/* Toolbar icons group into one floating capsule. */
+~upperContainer ~toolbar {
+  height: 40px;
+  padding-inline: 4px;
+  border-radius: var(--dp-capsule);
+  background: var(--dp-control-bg);
+  backdrop-filter: var(--dp-control-filter);
+  box-shadow: var(--dp-control-shadow);
+}
+
+~upperContainer ~title {
+  font: 600 16px/22px var(--dp-font-display);
+  letter-spacing: -0.01em;
+}
+
+/* Messages scroll under the header and the composer. */
+~scrollerInner {
+  padding-block: 68px 84px;
+}
+
+/* Channel notices float under the header as a small sheet of glass. */
+~chatHeaderBar {
+  position: absolute;
+  z-index: 5;
+  top: 64px;
+  left: 12px;
+  right: 12px;
+  overflow: hidden;
+  border-radius: var(--dp-r-card);
+  background: var(--dp-menu-bg);
+  backdrop-filter: var(--dp-menu-filter);
+  box-shadow: var(--dp-menu-shadow);
+}
+
+~message {
+  margin-inline: 8px;
+  border-radius: var(--dp-r-row);
+  corner-shape: squircle;
+  transition: background-color var(--dp-snap-t) var(--dp-snap);
+}
+
+~cozyMessage ~messageContent,
+~messageContent {
+  line-height: 22px;
+}
+
+~username {
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  filter: var(--dp-name-filter);
+}
+
+~member ~name,
+~nameTag ~title {
+  filter: var(--dp-name-filter);
+}
+
+/* --------------------------------------------------------------------------
+   8. Composer: the one capsule with a real refracting rim
+
+   A fixed negative margin keeps it in flow, so a long draft shrinks the
+   transcript as usual instead of covering the newest messages.
+   -------------------------------------------------------------------------- */
+
+form~form {
+  z-index: 7;
+  margin-block-start: -76px;
+  padding: 0 16px 14px !important;
+  background: none;
+}
+
+~channelTextArea {
+  margin: 0;
+  border: 0 !important;
+  border-radius: 26px;
+  background: var(--dp-composer-bg) !important;
+  backdrop-filter: var(--dp-control-filter-tall);
+  box-shadow: var(--dp-control-shadow) !important;
+}
+
+~scrollableContainer {
+  border-radius: 26px;
+  background: none !important;
+}
+
+form~form ~typing {
+  position: absolute;
+  inset: auto 0 100% 0;
+  height: 20px;
+  padding-inline: 34px;
+}
+
+/* --------------------------------------------------------------------------
+   9. Inspector: the member list
+   -------------------------------------------------------------------------- */
+
+~content > ~container:has(~membersWrap) {
+  background: none;
+}
+
+~membersWrap {
+  overflow: hidden;
+  border-radius: var(--dp-r-panel);
+  background: var(--dp-panel-bg) !important;
+  backdrop-filter: var(--dp-panel-filter);
+  box-shadow: var(--dp-panel-shadow);
+}
+
+~members {
+  background: none !important;
+}
+
+/* Anything that docks beside the chat, like the Friends panel, threads and profiles. */
+~channelArea ~ * {
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: var(--dp-r-panel);
+  background: var(--dp-panel-bg) !important;
+  backdrop-filter: var(--dp-panel-filter);
+  box-shadow: var(--dp-panel-shadow);
+}
+
+/* Discord ghosts offline people to 30%. Apple would use a secondary label. */
+~offline:not(:hover) {
+  opacity: 0.66;
+}
+
+~membersGroupName {
+  font: 600 12px/16px var(--dp-font);
+  letter-spacing: -0.002em;
+  text-transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   10. Floating surfaces: menus, tooltips, popouts, sheets
+   -------------------------------------------------------------------------- */
+
+@keyframes dp-materialize {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(6px);
+  }
+}
+
+[role="menu"] {
+  padding: 5px;
+  border: 0;
+  border-radius: var(--dp-r-menu);
+  background: var(--dp-menu-bg) !important;
+  backdrop-filter: var(--dp-menu-filter);
+  box-shadow: var(--dp-menu-shadow) !important;
+  transform-origin: top left;
+  animation: dp-materialize var(--dp-sheet-t) var(--dp-sheet-ease);
+}
+
+[role="menu"] [role^="menuitem"] {
+  min-height: 28px;
+  border-radius: var(--dp-r-menu-row);
+  corner-shape: squircle;
+  font-size: 13px;
+}
+
+[role="menu"] ~focused {
+  background: var(--dp-accent) !important;
+  color: var(--dp-on-accent) !important;
+}
+
+~tooltip {
+  border-radius: 10px;
+  background: var(--dp-menu-bg);
+  backdrop-filter: var(--dp-menu-filter);
+  box-shadow: var(--dp-menu-shadow);
+  color: var(--dp-label);
+}
+
+~tooltipPointer {
+  display: none;
+}
+
+/* Settings is a layermodal, everything else a modal. Both become sheets. */
+[data-mana-component$="modal"] {
+  border: 0 !important;
+  border-radius: var(--dp-r-sheet);
+  background: var(--dp-sheet-bg) !important;
+  backdrop-filter: var(--dp-sheet-filter);
+  box-shadow: var(--dp-sheet-shadow) !important;
+}
+
+/* --------------------------------------------------------------------------
+   11. Controls
+   -------------------------------------------------------------------------- */
+
+button[data-mana-component="button"],
+~lookFilled {
+  border-radius: var(--dp-capsule);
+  transition: transform var(--dp-snap-t) var(--dp-snap), background-color var(--dp-snap-t) var(--dp-snap);
+}
+
+button[data-mana-component="button"]:active,
+~lookFilled:active {
+  transform: scale(0.96);
+}
+
+/* macOS only shows the hand on links. */
+[role="button"],
+button,
+[data-list-id="guildsnav"] * {
+  cursor: default;
+}
+
+/* --------------------------------------------------------------------------
+   12. Discord's own reduced motion setting
+   -------------------------------------------------------------------------- */
+
+html:not(.full-motion) {
+  --dp-spring: ease;
+  --dp-spring-t: 120ms;
+  --dp-snap: ease;
+  --dp-snap-t: 80ms;
+  --dp-sheet-ease: ease;
+  --dp-sheet-t: 160ms;
+}
+
+/* --------------------------------------------------------------------------
+   13. Settings: the same one solid accent row as the channel list
+   -------------------------------------------------------------------------- */
+
+[data-mana-component$="modal"] aside ~itemContainer~active {
+  border-radius: var(--dp-r-row);
+  corner-shape: squircle;
+  background: var(--dp-selected-bg) !important;
+  box-shadow: var(--dp-selected-shadow);
+}
+
+[data-mana-component$="modal"] aside ~itemContainer~active,
+[data-mana-component$="modal"] aside ~itemContainer~active * {
+  color: var(--dp-on-accent) !important;
+}
+
+/* --------------------------------------------------------------------------
+   14. Nitro client themes paint these gradients straight onto panels.
+   initial makes each var() fall back to the clear surface underneath.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --background-gradient-app-frame: initial !important;
+  --background-gradient-chat: initial !important;
+  --background-gradient-high: initial !important;
+  --background-gradient-higher: initial !important;
+  --background-gradient-highest: initial !important;
+  --background-gradient-low: initial !important;
+  --background-gradient-lower: initial !important;
+  --background-gradient-lowest: initial !important;
+}
+
+/* Pages without a chat, like Friends, Shop and Quests, sit on the same material. */
+[data-fullscreen] ~page > :not(:has(~chatContent)) {
+  overflow: hidden;
+  border-radius: var(--dp-r-panel) !important;
+  background: var(--dp-content-bg) !important;
+  backdrop-filter: var(--dp-content-filter);
+  box-shadow: var(--dp-content-shadow);
+}
