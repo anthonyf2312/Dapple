@@ -18,9 +18,9 @@ const CACHE = join(ROOT, '.cache', 'wallpapers');
 const FONT = 'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap';
 
 const VERSIONS = [
-  { id: 'glass', file: 'Dapple', name: 'Dapple', description: 'What if Apple designed Discord. Liquid Glass over a wallpaper, following your light or dark appearance.' },
-  { id: 'light', file: 'Dapple-Light', name: 'Dapple Light', description: 'What if Apple designed Discord. Liquid Glass, but lighter.' },
-  { id: 'dark', file: 'Dapple-Dark', name: 'Dapple Dark', description: 'What if Apple designed Discord. Liquid Glass, but darker.' },
+  { id: 'glass', file: 'Dapple', name: 'Dapple', description: 'Discord, in a new light. What if Apple designed Discord? Liquid Glass that follows your light or dark appearance.' },
+  { id: 'light', file: 'Dapple-Light', name: 'Dapple Light', description: 'Discord, in a new light. What if Apple designed Discord? Liquid Glass, but lighter.' },
+  { id: 'dark', file: 'Dapple-Dark', name: 'Dapple Dark', description: 'Discord, in a new light. What if Apple designed Discord? Liquid Glass, but darker.' },
 ];
 
 // Blue is built into every version. Each flavour is a small add-on that swaps the wallpaper.
@@ -210,17 +210,6 @@ ${declarations(clamps)}
   // The preview reads the same numbers, so its wallpaper picker matches the real theme.
   writeFileSync(join(ROOT, 'design', 'clamps.js'), `window.DAPPLE_CLAMPS = ${JSON.stringify(previewClamps, null, 2)};\n`);
   console.log('clamps', JSON.stringify(previewClamps.Blue));
-
-  const social = join(ROOT, '.github', 'social-preview.jpg');
-  if (!existsSync(social)) {
-    mkdirSync(dirname(social), { recursive: true });
-    // GitHub's social preview is 1280x640 and must stay under 1 MB.
-    await sharp(join(ROOT, 'assets', 'GoldenGate_Mac+2.png'))
-      .resize({ width: 1280, height: 640, fit: 'cover', position: 'attention' })
-      .jpeg({ quality: 86, mozjpeg: true })
-      .toFile(social);
-    console.log('.github/social-preview.jpg'.padEnd(44), kb(readFileSync(social)));
-  }
 }
 
 await main();

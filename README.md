@@ -1,10 +1,12 @@
 # Dapple
 
-**What if Apple designed Discord.**
+**What if Apple designed Discord?**
 
-A Liquid Glass theme for Equicord, Vencord and BetterDiscord. Pure CSS, with no plugins and nothing to host.
+Discord, in a new light. A Liquid Glass theme for Equicord, Vencord and BetterDiscord, in pure CSS, with no plugins and nothing to host.
 
-![Dapple with Liquid Glass over the Blue wallpaper](design/screens/liquid-glass-dark.png)
+![Dapple running in Discord, with Liquid Glass panels over the Blue wallpaper](design/screens/discord.png)
+
+<sub>A real capture of Dapple in Discord. The server, people and messages are placeholders.</sub>
 
 ## Versions
 

@@ -10,7 +10,8 @@
 | `src/theme.css` | The theme, written against the live client |
 | `build.mjs` | Generates `dist/`, with wallpapers embedded |
 | `design/preview.html` | Interactive mock, reads the same tokens |
-| `design/screens/` | Renders of the mock, with fictional content |
+| `design/screens/` | Renders of the mock, plus `discord.png`, a real capture with placeholder content |
+| `design/social.html` | The GitHub social preview, rendered to `.github/social-preview.jpg` |
 
 ## Versions
 
