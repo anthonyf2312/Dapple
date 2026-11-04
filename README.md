@@ -82,7 +82,7 @@ Tokens live in `src/tokens.css` and styles in `src/theme.css`. The build writes 
 
 ## Credits
 
-- **Wave wallpapers:** [Sound.wav](https://basicappleguy.com/store/p/soundwav) by Basic Apple Guy, a paid wallpaper pack. If you like them, please buy the pack.
+- **Wave wallpapers:** [Sound.wav](https://basicappleguy.com/basicappleblog/soundwav) by Basic Apple Guy. They're free to download, and he takes [the WinRAR approach](https://basicappleguy.com/basicappleblog/the-winrar-approach): the bundle is an optional way to support his work. If you enjoy them, please consider it.
 - **Golden Gate wallpaper:** rights belong to its creator.
 
 ## License
