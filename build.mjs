@@ -12,7 +12,7 @@ import sharp from 'sharp';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const AUTHOR = 'anthonyf2312';
 const SOURCE = 'https://github.com/anthonyf2312/Dapple';
-const THEME_VERSION = '1.0.1';
+const THEME_VERSION = '1.1.0';
 const WALLPAPER_WIDTH = 2560; // the glass hides most of it, so anything larger is wasted bytes
 const WEBP_QUALITY = 80;
 // The Equicord Theme Library refuses a file containing any of these, even by chance inside base64.
@@ -26,11 +26,15 @@ const VERSIONS = [
   { id: 'dark', file: 'Dapple-Dark', name: 'Dapple Dark', description: 'What if Apple designed Discord? Discord, in a new light. A Liquid Glass theme.' },
 ];
 
-// Blue is built into every version. Each flavour is a small add-on that swaps the wallpaper.
+// Arcella Alps is built into every version. Each flavour is a small add-on that swaps the wallpaper.
+const DEFAULT_WALLPAPER = 'Arcella Alps';
 const FLAVOURS = [
-  { name: 'Skyblue' }, { name: 'Green' }, { name: 'Yellow' }, { name: 'Orange' },
-  { name: 'Red' }, { name: 'Purple' }, { name: 'Silver' },
+  { name: 'Chaos Ridge' }, { name: 'Difflugia Divide' }, { name: 'Pelomyxa Pass' },
+  { name: 'Proteus Valley' }, { name: 'Vannella Hills' },
 ];
+// Keeps the collection's own file names, so an image can be dropped straight in from the download.
+const darkImage = name => `${name.replaceAll(' ', '+')}+Dark+Mac`;
+const lightImage = name => `${name.replaceAll(' ', '+')}+Light+Mac`;
 
 const DARK_ROOT = 'html.theme-dark, html.theme-darker, html.theme-midnight';
 const LIGHT_ROOT = 'html.theme-light';
@@ -136,7 +140,7 @@ async function clampFor(source) {
   const clamp = (v, lo, hi) => Math.round(Math.min(hi, Math.max(lo, v)) * 100) / 100;
 
   // Dark glass: the brightest band, dimmed then tinted, must land at or below `ceiling`.
-  const bright = percentile(0.995); // close to the true peak: a label can land right on the crest of a wave
+  const bright = percentile(0.995); // close to the true peak: a label can land right on the brightest band
   const dim = (ceiling, tint) => clamp((ceiling - tint * 14) / (bright * (1 - tint)), 0.3, 0.92);
   // Light glass: the darkest band, compressed then lifted, must land at or above `floor`.
   const dark = percentile(0.05) / 255;
@@ -178,21 +182,21 @@ async function main() {
   mkdirSync(join(ROOT, 'dist', 'flavours'), { recursive: true });
 
   const theme = expandTheme(readFileSync(join(ROOT, 'src/theme.css'), 'utf8'));
-  const blueDark = await wallpaper('Blue_Dark');
-  const blueLight = await wallpaper('Blue_Light');
+  const defaultDark = await wallpaper(darkImage(DEFAULT_WALLPAPER));
+  const defaultLight = await wallpaper(lightImage(DEFAULT_WALLPAPER));
   // The dark wallpaper sets the dimming and the light wallpaper sets the lift.
-  const clampPair = async (dark, light) => {
-    const d = await clampFor(dark);
-    const l = await clampFor(light);
+  const clampPair = async name => {
+    const d = await clampFor(darkImage(name));
+    const l = await clampFor(lightImage(name));
     return { '--dp-dim-panel': d['--dp-dim-panel'], '--dp-dim-content': d['--dp-dim-content'], '--dp-lift-panel': l['--dp-lift-panel'], '--dp-lift-content': l['--dp-lift-content'] };
   };
-  const previewClamps = { Blue: await clampPair('Blue_Dark', 'Blue_Light') };
+  const previewClamps = { [DEFAULT_WALLPAPER]: await clampPair(DEFAULT_WALLPAPER) };
   const lenses = `:root {
 --dp-lens-composer: ${lens({ height: 400, rim: 10, scale: 22, bottom: false })};
 --dp-lens-tool: ${lens({ height: 40, rim: 8, scale: 16 })};
---dp-wallpaper-dark: ${blueDark};
---dp-wallpaper-light: ${blueLight};
-${declarations(previewClamps.Blue)}
+--dp-wallpaper-dark: ${defaultDark};
+--dp-wallpaper-light: ${defaultLight};
+${declarations(previewClamps[DEFAULT_WALLPAPER])}
 }`;
   const follow = {
     glass: `${DARK_ROOT} { --dp-wallpaper: var(--dp-wallpaper-dark); }\n${LIGHT_ROOT} { --dp-wallpaper: var(--dp-wallpaper-light); }`,
@@ -207,9 +211,9 @@ ${declarations(previewClamps.Blue)}
   }
 
   for (const f of FLAVOURS) {
-    const dark = await wallpaper(`${f.name}_Dark`);
-    const light = await wallpaper(`${f.name}_Light`);
-    const clamps = await clampPair(`${f.name}_Dark`, `${f.name}_Light`);
+    const dark = await wallpaper(darkImage(f.name));
+    const light = await wallpaper(lightImage(f.name));
+    const clamps = await clampPair(f.name);
     previewClamps[f.name] = clamps;
     const css = `${header(`Dapple Flavour: ${f.name}`, `Turn this on alongside Dapple, Dapple Light or Dapple Dark to swap the wallpaper to ${f.name}.`)}
 /* html:root outranks the version's :root, whichever theme file loads first. */
@@ -226,7 +230,7 @@ ${declarations(clamps)}
 
   // The preview reads the same numbers, so its wallpaper picker matches the real theme.
   writeFileSync(join(ROOT, 'design', 'clamps.js'), `window.DAPPLE_CLAMPS = ${JSON.stringify(previewClamps, null, 2)};\n`);
-  console.log('clamps', JSON.stringify(previewClamps.Blue));
+  for (const [name, clamps] of Object.entries(previewClamps)) console.log(name.padEnd(18), JSON.stringify(clamps));
 }
 
 await main();

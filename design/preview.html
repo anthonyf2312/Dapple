@@ -568,8 +568,8 @@
   <span class="sep" id="appSep"></span>
   <button id="appearance" aria-label="Switch glass appearance"><svg class="i" style="width:15px;height:15px"><use id="appIcon" href="#sun"/></svg></button>
   <select id="wallPick" aria-label="Wallpaper">
-    <option selected>Blue</option><option>Skyblue</option><option>Green</option><option>Yellow</option>
-    <option>Orange</option><option>Red</option><option>Purple</option><option>Silver</option>
+    <option selected>Arcella Alps</option><option>Chaos Ridge</option><option>Difflugia Divide</option>
+    <option>Pelomyxa Pass</option><option>Proteus Valley</option><option>Vannella Hills</option>
   </select>
 </div>
 
@@ -598,11 +598,11 @@
     applyWall();
   };
   const syncIcon = () => document.getElementById('appIcon').setAttribute('href', root.dataset.appearance === 'dark' ? '#sun' : '#moon');
-  // Wave wallpapers come in Light and Dark pairs, so the image follows the appearance.
+  // Wallpapers come in Light and Dark pairs, so the image follows the appearance.
   const wallPick = document.getElementById('wallPick');
   const applyWall = () => {
     const name = wallPick.value;
-    const file = `${name}_${root.dataset.appearance === 'dark' ? 'Dark' : 'Light'}`;
+    const file = `${name.replaceAll(' ', '+')}+${root.dataset.appearance === 'dark' ? 'Dark' : 'Light'}+Mac`;
     root.style.setProperty('--dp-wall-image', `url("../assets/${file}.png") center / cover no-repeat`);
     for (const [k, v] of Object.entries(window.DAPPLE_CLAMPS?.[name] ?? {})) root.style.setProperty(k, v);
   };

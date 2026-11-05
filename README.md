@@ -27,21 +27,21 @@ Enable one at a time.
 
 ## Flavours
 
-Each version uses the Blue wallpaper. To change it, turn on one Flavour alongside your version:
+Dapple's wallpapers are [Topographic Amoeba](https://basicappleguy.com/basicappleblog/topographic-amoeba) by Basic Apple Guy, used with permission. Each version uses **Arcella Alps**. To change it, turn on one Flavour alongside your version:
 
-Skyblue · Green · Yellow · Orange · Red · Purple · Silver
+Chaos Ridge · Difflugia Divide · Pelomyxa Pass · Proteus Valley · Vannella Hills
 
 Each Flavour swaps between a Light and Dark image to match your version.
 
+![The six Topographic Amoeba wallpapers, each shown half dark and half light: Arcella Alps, the default, then Chaos Ridge, Difflugia Divide, Pelomyxa Pass, Proteus Valley and Vannella Hills](design/screens/wallpapers.jpg)
+
 | | Dark | Light |
 | --- | --- | --- |
-| **Skyblue** | ![Skyblue in dark](design/screens/variants/skyblue-dark.jpg) | ![Skyblue in light](design/screens/variants/skyblue-light.jpg) |
-| **Green** | ![Green in dark](design/screens/variants/green-dark.jpg) | ![Green in light](design/screens/variants/green-light.jpg) |
-| **Yellow** | ![Yellow in dark](design/screens/variants/yellow-dark.jpg) | ![Yellow in light](design/screens/variants/yellow-light.jpg) |
-| **Orange** | ![Orange in dark](design/screens/variants/orange-dark.jpg) | ![Orange in light](design/screens/variants/orange-light.jpg) |
-| **Red** | ![Red in dark](design/screens/variants/red-dark.jpg) | ![Red in light](design/screens/variants/red-light.jpg) |
-| **Purple** | ![Purple in dark](design/screens/variants/purple-dark.jpg) | ![Purple in light](design/screens/variants/purple-light.jpg) |
-| **Silver** | ![Silver in dark](design/screens/variants/silver-dark.jpg) | ![Silver in light](design/screens/variants/silver-light.jpg) |
+| **Chaos Ridge** | ![Chaos Ridge in dark](design/screens/variants/chaos-ridge-dark.jpg) | ![Chaos Ridge in light](design/screens/variants/chaos-ridge-light.jpg) |
+| **Difflugia Divide** | ![Difflugia Divide in dark](design/screens/variants/difflugia-divide-dark.jpg) | ![Difflugia Divide in light](design/screens/variants/difflugia-divide-light.jpg) |
+| **Pelomyxa Pass** | ![Pelomyxa Pass in dark](design/screens/variants/pelomyxa-pass-dark.jpg) | ![Pelomyxa Pass in light](design/screens/variants/pelomyxa-pass-light.jpg) |
+| **Proteus Valley** | ![Proteus Valley in dark](design/screens/variants/proteus-valley-dark.jpg) | ![Proteus Valley in light](design/screens/variants/proteus-valley-light.jpg) |
+| **Vannella Hills** | ![Vannella Hills in dark](design/screens/variants/vannella-hills-dark.jpg) | ![Vannella Hills in light](design/screens/variants/vannella-hills-light.jpg) |
 
 ## Install
 
@@ -62,7 +62,7 @@ html:root {
 }
 ```
 
-The built-in wallpapers are each measured when Dapple is built, so they get exactly as much dimming as they need. A custom image uses the Blue wallpaper's values, so a very bright one may need these too:
+The built-in wallpapers are each measured when Dapple is built, so they get exactly as much dimming as they need. A custom image uses Arcella Alps' values, so a very bright one may need these too:
 
 ```css
 html:root {
@@ -97,7 +97,7 @@ Tokens live in `src/tokens.css` and styles in `src/theme.css`. The build writes 
 
 ## Credits
 
-- **Wave wallpapers:** [Sound.wav](https://basicappleguy.com/basicappleblog/soundwav) by Basic Apple Guy. They're free to download, and he takes [the WinRAR approach](https://basicappleguy.com/basicappleblog/the-winrar-approach): the bundle is an optional way to support his work. If you enjoy them, please consider it.
+- **Wallpapers:** [Topographic Amoeba](https://basicappleguy.com/basicappleblog/topographic-amoeba) by Basic Apple Guy, used with his permission. They're free to download, and he takes [the WinRAR approach](https://basicappleguy.com/basicappleblog/the-winrar-approach): the collection is an optional way to support his work. If you enjoy them, please consider it.
 
 ## License
 

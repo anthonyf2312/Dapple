@@ -2,7 +2,7 @@
 
 **Concept:** what if Apple designed Discord. The app rebuilt on Apple's rules: a floating functional layer over content, one quiet accent, type that does the work, and motion that behaves like physics.
 
-**Status:** v1.0.1. Built, tested in real Discord, and public.
+**Status:** v1.1.0. Built and tested in real Discord.
 
 | File | Purpose |
 | --- | --- |
@@ -10,7 +10,7 @@
 | `src/theme.css` | The theme, written against the live client |
 | `build.mjs` | Generates `dist/`, with wallpapers embedded |
 | `design/preview.html` | Interactive mock, reads the same tokens |
-| `design/screens/` | Renders of the mock, plus `discord.png`, a real capture with placeholder content |
+| `design/screens/` | Renders of the mock, plus `discord.png` and `discord-light.png`, real captures with placeholder content |
 | `design/social.html` | The GitHub social preview, rendered to `.github/social-preview.jpg` |
 
 ## Versions
@@ -20,20 +20,20 @@ Every version is glass over a wallpaper, so Light and Dark are never flat white,
 | | Liquid Glass | Light | Dark |
 | --- | --- | --- | --- |
 | Idea | Transparent and lightly frosted | Frosted glass, lighter | Smoked glass, darker |
-| Wallpaper | Blue pair, follows appearance | Blue Light | Blue Dark |
+| Wallpaper | Arcella Alps pair, follows appearance | Arcella Alps Light | Arcella Alps Dark |
 | Appearance | Follows Discord's setting | Always light | Always dark |
 
 Chat always sits on a thicker material than the navigation, per the HIG: glass belongs to controls and navigation that float above content.
 
 ## Flavours
 
-A Flavour is a small add-on theme that swaps the wallpaper, so 3 versions and 7 Flavours need 10 files rather than 21. It's enabled alongside a version and uses `html:root`, so it wins whichever file loads first.
+A Flavour is a small add-on theme that swaps the wallpaper, so 3 versions and 5 Flavours need 8 files rather than 18. It's enabled alongside a version and uses `html:root`, so it wins whichever file loads first.
 
 ## Legible on any wallpaper
 
 CSS can't sample what's behind a surface, so the glass clamps its backdrop instead. `brightness()` caps how bright it can get on dark, and `contrast()` with `brightness()` lifts the floor on light. Color still shows through, but the luminance range can't reach the text.
 
-**The clamp is measured per wallpaper.** Transparency and legibility pull against each other, so one fixed value would make every wallpaper as dark as the brightest one needs. Instead `build.mjs` blurs each image the way the glass will and reads its peak brightness and darkest band. Each one then gets only the clamp it needs, as `--dp-dim-*` and `--dp-lift-*`. Blue stays open, and a bright Flavour like Skyblue is held back further. It's still pure CSS, because the numbers are worked out ahead of time.
+**The clamp is measured per wallpaper.** Transparency and legibility pull against each other, so one fixed value would make every wallpaper as dark as the brightest one needs. Instead `build.mjs` blurs each image the way the glass will and reads its peak brightness and darkest band. Each one then gets only the clamp it needs, as `--dp-dim-*` and `--dp-lift-*`. Arcella Alps stays open, and the brightest Flavour, Pelomyxa Pass, is held back further. It's still pure CSS, because the numbers are worked out ahead of time.
 
 **On thin glass the text does the work, not the tint.** Liquid Glass uses solid labels and stronger link, red and syntax colors, and code sits in a darker well, so the glass can stay transparent.
 
@@ -109,13 +109,12 @@ Checked against Discord 1.0.9267 on Chrome 152.
 
 ## Verification
 
-- **Real Discord, loaded through Equicord, in a chat with the Friends panel open:** 26 of 26 interface labels pass in all three versions, with lows of 4.98:1, 4.89:1 and 5.03:1. Role-colored names are excluded, because each server sets them.
-- **Liquid Glass on every wallpaper, dark:** 270 interface labels with no failures, lowest 4.81:1. That run covered 9 wallpapers, including one since removed.
-- **Mock, every version on every wallpaper:** 2,488 text measurements. Before the final sheen fix, 7 failed on Flavours, which the 270-label run re-checked and cleared. Another 7 are mock role names, which stand in for server-set colors. Blue had no interface failures.
-- **Before Liquid Glass was thinned:** sheets passed, and 96 menu rows over the brightest wallpapers had a lowest of 5.73:1. Menus and sheets keep their own thicker glass and were not re-measured.
+- **Real Discord, loaded through Equicord, every version on every wallpaper:** 1,080 interface labels across 24 combinations, with no failures and a lowest of 4.58:1. Each label is judged on the 10th percentile of the pixels behind it, so one straddling a bright band can't pass on its median. Channel names are included. Role-colored names are excluded, because each server sets them.
+- **The check can fail.** With the glass removed, the same run drops to 1.05:1 and fails up to 24 labels.
 
 **Not verified:**
 
+- Menus and sheets on these wallpapers. They keep their own thicker glass, which last passed on the previous wallpapers with a lowest of 5.73:1.
 - Scrolling performance. The debug session caps at about 13 fps with or without a theme, so it can't measure this.
 - Vencord and BetterDiscord.
 - Screen share, and voice and video call views.
