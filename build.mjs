@@ -12,7 +12,7 @@ import sharp from 'sharp';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const AUTHOR = 'anthonyf2312';
 const SOURCE = 'https://github.com/anthonyf2312/Dapple';
-const THEME_VERSION = '1.1.0';
+const THEME_VERSION = '1.2.0';
 const WALLPAPER_WIDTH = 2560; // the glass hides most of it, so anything larger is wasted bytes
 const WEBP_QUALITY = 80;
 // The Equicord Theme Library refuses a file containing any of these, even by chance inside base64.
@@ -38,12 +38,13 @@ const lightImage = name => `${name.replaceAll(' ', '+')}+Light+Mac`;
 
 const DARK_ROOT = 'html.theme-dark, html.theme-darker, html.theme-midnight';
 const LIGHT_ROOT = 'html.theme-light';
-const THEME_ROOTS = ['.theme-dark', '.theme-light', '.theme-darker', '.theme-midnight', '.visual-refresh'];
-// Discord declares tokens on these classes, and its lazy stylesheets can load after a theme,
-// so plain :root loses. Repeating the class outranks both without using !important.
-const ALL_ROOTS = [':root:root:root', ...THEME_ROOTS.map(c => c.repeat(3))].join(', ');
+
+// These names also appear inside longer ones (sidebar_ contains bar_), so they need the longer
+// match. Checked against every class in Discord's CSS. Everything else is safe with the short one.
+const SHARED_NAMES = new Set(['active', 'bar', 'focused', 'form', 'layer', 'layerContainer', 'name', 'title']);
 
 const stripComments = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
+const commentsIn = css => (css.match(/\/\*[\s\S]*?\*\//g) ?? []).join('\n');
 
 function parseBlocks(css) {
   const blocks = [];
@@ -76,22 +77,45 @@ function tokensFor(version) {
     }
     return s === `[data-version="${version}"]` ? ':root' : null;
   };
+  // Comments stay, so the built themes are as readable as the source.
   const render = blocks => blocks.map(({ prelude, body }) => {
-    if (prelude.startsWith('@')) {
+    const notes = commentsIn(prelude);
+    const head = stripComments(prelude).trim();
+    if (head.startsWith('@')) {
       const inner = render(parseBlocks(body));
-      return inner ? `${prelude} {\n${inner}\n}` : '';
+      return inner ? `${notes}\n${head} {\n${inner}\n}`.trim() : '';
     }
-    const selectors = [...new Set(prelude.split(',').map(mapSelector).filter(Boolean))];
-    return selectors.length ? `${selectors.join(', ')} {\n${body.trim()}\n}` : '';
-  }).filter(Boolean).join('\n');
-  return render(parseBlocks(stripComments(readFileSync(join(ROOT, 'src/tokens.css'), 'utf8'))));
+    const selectors = [...new Set(head.split(',').map(mapSelector).filter(Boolean))];
+    return selectors.length ? `${notes}\n${selectors.join(', ')} {\n${body.replace(/^\s*\n/, '').trimEnd()}\n}`.trim() : '';
+  }).filter(Boolean).join('\n\n');
+  return render(parseBlocks(readFileSync(join(ROOT, 'src/tokens.css'), 'utf8')));
 }
 
-// `~name` matches one exact class stem, whatever hash Discord gives it this week.
-// A plain [class*="bar_"] would also hit sidebar_ and toolbar_.
-const expandTheme = css => stripComments(css)
-  .replace(/~([a-zA-Z][a-zA-Z0-9-]*)/g, ':is([class^="$1_"], [class*=" $1_"])')
-  .replaceAll('%ALL%', ALL_ROOTS);
+// Discord's class names end in a random hash that changes with its updates, so a class like
+// .message in the source becomes a match on the start of the name. A class with a hyphen is
+// one of Discord's fixed names, like .app-focused, and stays as written.
+const matchName = name => SHARED_NAMES.has(name)
+  ? `:is([class^="${name}_"], [class*=" ${name}_"])`
+  : `[class*="${name}_"]`;
+const expandSelectors = code => code.replace(/[^{}]+(?=\{)/g, selector =>
+  selector.replace(/\.([a-zA-Z][a-zA-Z0-9]*)(?![\w-])/g, (_, name) => matchName(name)));
+// Odd entries are comments, which pass through untouched.
+const expandTheme = css => css.split(/(\/\*[\s\S]*?\*\/)/).map((part, i) => i % 2 ? part : expandSelectors(part)).join('');
+
+// Every --dp- value the themes define should be read somewhere.
+function warnUnusedTokens(css) {
+  const defined = new Set([...stripComments(css).matchAll(/(--dp-[\w-]+)\s*:/g)].map(m => m[1]));
+  const unused = [...defined].filter(token => !css.includes(`var(${token}`));
+  if (unused.length) console.warn(`Unused tokens: ${unused.join(' ')}`);
+}
+
+// No Blur is the Reduce Transparency setting, minus clearing the wallpaper, so the two can't drift.
+function solidSurfaces() {
+  const tokens = parseBlocks(stripComments(readFileSync(join(ROOT, 'src/tokens.css'), 'utf8')));
+  const media = tokens.find(block => block.prelude.startsWith('@media (prefers-reduced-transparency'));
+  return parseBlocks(media.body).map(block => block.body).join('\n')
+    .split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('--dp-wallpaper:')).join('\n');
+}
 
 // Refraction with no JavaScript: an SVG displacement map used by backdrop-filter. Discord's CSP
 // allows data: images, and this was confirmed rendering inside the real client.
@@ -191,21 +215,24 @@ async function main() {
     return { '--dp-dim-panel': d['--dp-dim-panel'], '--dp-dim-content': d['--dp-dim-content'], '--dp-lift-panel': l['--dp-lift-panel'], '--dp-lift-content': l['--dp-lift-content'] };
   };
   const previewClamps = { [DEFAULT_WALLPAPER]: await clampPair(DEFAULT_WALLPAPER) };
-  const lenses = `:root {
+  // Image data goes last, so the settings are the first thing anyone sees in a theme file.
+  const generated = `/* --------------------------------------------------------------------------
+   Generated by build.mjs: the glass lenses, wallpapers and wallpaper measurements.
+   There is nothing to edit below this line.
+   -------------------------------------------------------------------------- */
+
+:root {
 --dp-lens-composer: ${lens({ height: 400, rim: 10, scale: 22, bottom: false })};
 --dp-lens-tool: ${lens({ height: 40, rim: 8, scale: 16 })};
 --dp-wallpaper-dark: ${defaultDark};
 --dp-wallpaper-light: ${defaultLight};
 ${declarations(previewClamps[DEFAULT_WALLPAPER])}
 }`;
-  const follow = {
-    glass: `${DARK_ROOT} { --dp-wallpaper: var(--dp-wallpaper-dark); }\n${LIGHT_ROOT} { --dp-wallpaper: var(--dp-wallpaper-light); }`,
-    light: ':root { --dp-wallpaper: var(--dp-wallpaper-light); }',
-    dark: ':root { --dp-wallpaper: var(--dp-wallpaper-dark); }',
-  };
 
   for (const v of VERSIONS) {
-    const css = [header(v.name, v.description), `@import url("${FONT}");`, lenses, tokensFor(v.id), follow[v.id], theme].join('\n\n');
+    const styles = [tokensFor(v.id), theme].join('\n\n');
+    warnUnusedTokens(styles);
+    const css = [header(v.name, v.description), `@import url("${FONT}");`, styles, generated].join('\n\n');
     writeTheme(join(ROOT, 'dist', `${v.file}.theme.css`), css);
     console.log(`${v.file}.theme.css`.padEnd(44), kb(css));
   }
@@ -227,6 +254,15 @@ ${declarations(clamps)}
     writeTheme(join(ROOT, 'dist', 'flavours', file), css);
     console.log(`flavours/${file}`.padEnd(44), kb(css));
   }
+
+  const noBlur = `${header('Dapple Flavour: No Blur', 'Turn this on alongside Dapple, Dapple Light or Dapple Dark for solid panels instead of glass. Easier on older PCs and easier to read.')}
+/* html:root:root outranks the glass settings in every version. */
+html:root:root {
+${solidSurfaces()}
+}
+`;
+  writeTheme(join(ROOT, 'dist', 'flavours', 'Dapple-Flavour-NoBlur.theme.css'), noBlur);
+  console.log('flavours/Dapple-Flavour-NoBlur.theme.css'.padEnd(44), kb(noBlur));
 
   // The preview reads the same numbers, so its wallpaper picker matches the real theme.
   writeFileSync(join(ROOT, 'design', 'clamps.js'), `window.DAPPLE_CLAMPS = ${JSON.stringify(previewClamps, null, 2)};\n`);

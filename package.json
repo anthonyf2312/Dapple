@@ -1,6 +1,6 @@
 {
   "name": "dapple",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Discord, in a new light. What if Apple designed Discord? A Liquid Glass theme for Equicord, Vencord and BetterDiscord.",
   "type": "module",

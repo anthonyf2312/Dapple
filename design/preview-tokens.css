@@ -1,0 +1,33 @@
+/* Values only design/preview.html uses. The themes never read these. */
+
+:root {
+  --dp-dock-w: 64px;
+  --dp-sidebar-w: 248px;
+  --dp-inspector-w: 232px;
+  --dp-edge-bottom: transparent; /* the bottom stays clear so the composer has something to refract */
+}
+
+[data-version="light"],
+[data-version="glass"][data-appearance="light"] {
+  /* Role colours in the preview. Real ones are set by each server. */
+  --dp-role-pink: #ad0f3e;
+  --dp-role-teal: #005f6a;
+  --dp-role-orange: #8f3f08;
+  --dp-role-indigo: #4034c4;
+  --dp-role-green: #12642a;
+  --dp-group-bg: rgba(255, 255, 255, 0.62);
+  --dp-ring: #f1f1f6;
+  --dp-knob-shadow: 0 1px 3px rgba(0, 0, 0, 0.24), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+}
+
+[data-version="dark"],
+[data-version="glass"][data-appearance="dark"] {
+  --dp-role-pink: #ff8ca6;
+  --dp-role-teal: #40d9e4;
+  --dp-role-orange: #ffa94d;
+  --dp-role-indigo: #9aa5ff;
+  --dp-role-green: #4cd964;
+  --dp-group-bg: rgba(255, 255, 255, 0.07);
+  --dp-ring: #24242c;
+  --dp-knob-shadow: 0 1px 3px rgba(0, 0, 0, 0.42);
+}

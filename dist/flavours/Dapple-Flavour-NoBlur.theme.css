@@ -1,0 +1,28 @@
+/**
+ * @name Dapple Flavour: No Blur
+ * @description Turn this on alongside Dapple, Dapple Light or Dapple Dark for solid panels instead of glass. Easier on older PCs and easier to read.
+ * @author anthonyf2312
+ * @version 1.2.0
+ * @website https://github.com/anthonyf2312/Dapple
+ * @source https://github.com/anthonyf2312/Dapple
+ */
+
+/* html:root:root outranks the glass settings in every version. */
+html:root:root {
+--dp-canvas: var(--dp-solid-canvas);
+--dp-panel-bg: var(--dp-solid-panel);
+--dp-dock-bg: var(--dp-solid-panel);
+--dp-content-bg: var(--dp-solid-content);
+--dp-control-bg: var(--dp-solid-control);
+--dp-composer-bg: var(--dp-solid-control);
+--dp-menu-bg: var(--dp-solid-menu);
+--dp-sheet-bg: var(--dp-solid-panel);
+--dp-backdrop-bg: var(--dp-scrim);
+--dp-panel-filter: none !important;
+--dp-dock-filter: none !important;
+--dp-content-filter: none !important;
+--dp-control-filter: none !important;
+--dp-control-filter-tall: none !important;
+--dp-menu-filter: none !important;
+--dp-sheet-filter: none !important;
+}

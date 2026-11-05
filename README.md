@@ -45,11 +45,58 @@ Each Flavour swaps between a Light and Dark image to match your version.
 
 ## Install
 
+### With a link (recommended)
+
+Fixes reach you automatically, with nothing to download again. In Equicord or Vencord, open Settings → Themes → Online Themes and paste:
+
+```text
+https://raw.githubusercontent.com/anthonyf2312/Dapple/main/dist/Dapple.theme.css
+```
+
+For the other versions, end the link with `Dapple-Light.theme.css` or `Dapple-Dark.theme.css`. Flavours work the same way, from `dist/flavours/`.
+
+### As a file
+
+This is the way to install on BetterDiscord. If Discord breaks something, you'll need to download the fixed file yourself.
+
 1. Download a version from [`dist/`](dist) and, if you want one, a Flavour from [`dist/flavours/`](dist/flavours).
-2. Put the files in your themes folder:
-   - **Equicord or Vencord:** Settings → Themes → Open Themes Folder
-   - **BetterDiscord:** Settings → Themes → Open Themes Folder
-3. Enable them in the Themes tab. Turn off any other full theme, because two themes restyling the same elements will clash.
+2. Put the files in your themes folder. In Equicord, Vencord and BetterDiscord, that's Settings → Themes → Open Themes Folder.
+3. Enable them in the Themes tab.
+
+However you install it, turn off any other full theme, because two themes restyling the same elements will clash.
+
+## Less blur
+
+Blur is what makes glass look like glass, but it's also the heaviest thing Dapple asks of your PC. If Discord feels slow, or you'd rather read on solid panels, turn on **No Blur** alongside your version. It's in [`dist/flavours/`](dist/flavours), and it works with any wallpaper Flavour.
+
+## Make it yours
+
+Add this to your QuickCSS and change the values:
+
+```css
+html:root {
+  --dapple-accent: #34c759; /* buttons, selected rows and links */
+  --dapple-gap: 8px; /* space between the floating panels */
+  --dapple-corners: 20px; /* roundness of the floating panels */
+}
+```
+
+Text on your accent colour turns black or white by itself, so it stays readable.
+
+## Font
+
+Dapple is made to be used with San Francisco, the font Apple uses across its devices. It's what makes Dapple feel the most like a real Apple app.
+
+- **On a Mac,** there's nothing to do. Dapple already uses it.
+- **On Windows or Linux,** Dapple uses [Inter](https://rsms.me/inter/), the closest free match. If SF Pro is installed, Dapple switches to it by itself, with no settings to change.
+
+**[Download SF Pro from Apple](https://developer.apple.com/fonts/)**
+
+Good to know before you download it:
+
+- It's a separate download because Apple's licence doesn't allow SF Pro to be included with a theme.
+- The download is a Mac installer, and the licence is written for designing apps for Apple's platforms, so please read Apple's terms to check they cover what you want to do.
+- Install every weight, not just one. With a single weight installed, every title uses that weight, so one heavy file makes all your titles extra bold.
 
 ## Your own wallpaper
 
@@ -77,14 +124,15 @@ html:root {
 - **Floating layout.** A Dock for servers with magnification, a source list for channels, an inspector for members, and a toolbar and composer that messages scroll under.
 - **Mac traffic lights on Windows.** They're your real window buttons, restyled, so they all still work.
 - **Squircle server icons and rows,** and Apple's spring motion, with no JavaScript.
-- **Respects your settings.** Reduce Motion, Reduce Transparency and Increase Contrast are all supported.
+- **Made for Apple's San Francisco font,** with Inter, the closest free match, until you [add it](#font).
+- **Respects your settings.** Reduce Motion, Reduce Transparency and Increase Contrast are all supported, along with Discord's Saturation and chat font size settings.
 - **Works with Nitro themes.** Client themes are neutralised so they don't tint the glass.
 
 ## Compatibility
 
 Developed and tested on Equicord on Windows. It targets Discord's current Chromium, and older clients lose squircles and the refraction effect but stay usable. Vencord and BetterDiscord use the same CSS but haven't been tested yet.
 
-Discord changes its class names often. Dapple matches stable class stems so it survives most updates, but something may still break after a big one.
+Discord changes the random ending on its class names often. Dapple matches the start of each name, so it survives most updates, but something may still break after a big one. If you installed with a link, the fix reaches you automatically.
 
 ## Building
 

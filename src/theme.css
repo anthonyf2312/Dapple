@@ -1,19 +1,31 @@
 /* ==========================================================================
    Dapple: what if Apple designed Discord.
 
-   Written against the live client. `~name` is a build macro that matches one
-   exact class stem, so these selectors survive Discord's hash rotations.
-   Prefer tokens, then role and data attributes, then stems.
+   Written against the live client. Class names here are Discord's, without the
+   random ending. Its real name for a message is something like message__5126c,
+   and that ending changes with its updates, so build.mjs turns .message into a
+   match on the start of the name.
+
+   Prefer Discord's own variables, then role and data attributes, then class names.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
    1. Discord's tokens
    -------------------------------------------------------------------------- */
 
-%ALL% {
+/* Discord declares its variables on these, and its lazy stylesheets can load after a theme.
+   Repeating each class outranks both without using !important. */
+:root:root:root,
+.theme-dark.theme-dark.theme-dark,
+.theme-light.theme-light.theme-light,
+.theme-darker.theme-darker.theme-darker,
+.theme-midnight.theme-midnight.theme-midnight,
+.visual-refresh.visual-refresh.visual-refresh {
   --font-primary: var(--dp-font);
   --font-display: var(--dp-font-display);
   --font-headline: var(--dp-font-display);
+  --font-nitro: var(--dp-font-display); /* headings on the Nitro and Shop pages */
+  --font-display-marketing-header: var(--dp-font-display);
   --font-code: var(--dp-font-mono);
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -69,6 +81,22 @@
   --text-link: var(--dp-link);
   --text-brand: var(--dp-link);
   --text-code: var(--dp-label);
+  --text-code-keyword: hsl(from var(--dp-code-keyword) h calc(s * var(--dp-sat)) l);
+  --text-code-string: hsl(from var(--dp-code-string) h calc(s * var(--dp-sat)) l);
+  --text-code-number: hsl(from var(--dp-code-number) h calc(s * var(--dp-sat)) l);
+  --text-code-comment: hsl(from var(--dp-code-comment) h calc(s * var(--dp-sat)) l);
+  --text-code-tag: var(--text-code-keyword);
+  --text-code-type: var(--text-code-keyword);
+  --text-code-builtin: var(--text-code-keyword);
+  --text-code-regexp: var(--text-code-string);
+  --text-code-attribute: var(--text-code-string);
+  --text-code-variable: var(--text-code-number);
+  --text-code-bullet: var(--text-code-number);
+  --text-code-decorator: var(--text-code-comment);
+  --text-code-title: var(--dp-label);
+  --text-code-section: var(--dp-label);
+  --text-code-property: var(--dp-label);
+  --text-code-operator: var(--dp-label);
   --chat-text-muted: var(--dp-label-3);
   --channels-default: var(--dp-label-2);
   --channel-icon: var(--dp-label-3);
@@ -172,26 +200,29 @@ html {
 }
 
 body {
-  background: var(--dp-wallpaper) center / cover no-repeat fixed var(--dp-canvas) !important;
+  background:
+    linear-gradient(hsl(0 0% 50% / calc(1 - var(--dp-sat))) 0 0) center / cover no-repeat fixed,
+    var(--dp-wallpaper) center / cover no-repeat fixed var(--dp-canvas) !important;
+  background-blend-mode: saturation, normal;
 }
 
 #app-mount,
-~appMount,
-~bg,
-~app,
-~layers,
-~layer,
-~baseLayer,
-~appAsidePanelWrapper,
-~notAppAsidePanel,
+.appMount,
+.bg,
+.app,
+.layers,
+.layers > .layer,
+.baseLayer,
+.appAsidePanelWrapper,
+.notAppAsidePanel,
 [data-fullscreen],
-[data-fullscreen] > ~content,
-[data-fullscreen] ~sidebar,
-[data-fullscreen] ~sidebarList,
-[data-fullscreen] ~page,
-[data-fullscreen] ~page > div,
-~channelArea,
-~chat {
+[data-fullscreen] > .content,
+[data-fullscreen] .sidebar,
+[data-fullscreen] .sidebarList,
+[data-fullscreen] .page,
+[data-fullscreen] .page > div,
+.channelArea,
+.chat {
   background: none !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -204,11 +235,11 @@ body {
   padding-block-end: var(--dp-gap);
 }
 
-[data-fullscreen] > ~bar {
+[data-fullscreen] > .bar {
   margin-inline: calc(-1 * var(--dp-gap));
 }
 
-[data-fullscreen] ~sidebar::after {
+[data-fullscreen] .sidebar::after {
   display: none;
 }
 
@@ -216,19 +247,19 @@ body {
    3. Title bar and traffic lights
    -------------------------------------------------------------------------- */
 
-[data-fullscreen] > ~bar {
+[data-fullscreen] > .bar {
   background: none !important;
   padding-inline: 14px;
   align-items: center;
 }
 
-[data-fullscreen] > ~bar ~leading {
+[data-fullscreen] > .bar .leading {
   padding-inline-start: 72px;
 }
 
 /* Text never sits directly on a wallpaper, so the bar's contents become small chips. */
-~backForwardButtons,
-[data-fullscreen] > ~bar > ~title > * {
+.backForwardButtons,
+[data-fullscreen] > .bar > .title > * {
   align-items: center;
   height: 28px;
   padding-inline: 8px;
@@ -239,18 +270,18 @@ body {
   color: var(--dp-label);
 }
 
-[data-fullscreen] > ~bar > ~title {
+[data-fullscreen] > .bar > .title {
   align-items: center;
 }
 
-[data-fullscreen] > ~bar > ~title > * {
+[data-fullscreen] > .bar > .title > * {
   gap: 6px;
   padding-inline: 6px 12px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
 }
 
-[data-fullscreen] > ~bar ~guildIcon {
+[data-fullscreen] > .bar .guildIcon {
   width: 18px;
   height: 18px;
   border-radius: 6px;
@@ -259,7 +290,7 @@ body {
 
 /* The chip is a pseudo-element on purpose. The window buttons live inside this element, and
    backdrop-filter on it would become their containing block and trap them here. */
-[data-fullscreen] > ~bar ~trailing {
+[data-fullscreen] > .bar .trailing {
   position: relative;
   height: 28px;
   padding-inline: 8px;
@@ -267,7 +298,7 @@ body {
   color: var(--dp-label);
 }
 
-[data-fullscreen] > ~bar ~trailing::before {
+[data-fullscreen] > .bar .trailing::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -279,7 +310,7 @@ body {
 }
 
 /* The real window buttons, restyled, so minimise, maximise and close all still work. */
-~winButtons {
+.winButtons {
   position: fixed !important;
   top: calc((var(--dp-topbar) - 12px) / 2);
   left: 16px;
@@ -290,11 +321,11 @@ body {
   -webkit-app-region: no-drag;
 }
 
-~winButtons::before {
+.winButtons::before {
   display: none !important;
 }
 
-~winButton {
+.winButton {
   position: relative !important;
   top: 0 !important;
   width: 12px !important;
@@ -305,18 +336,18 @@ body {
   transition: background-color var(--dp-snap-t) var(--dp-snap);
 }
 
-~winButton svg {
+.winButton svg {
   display: none;
 }
 
 /* A 12px dot is a hard target, so the hit area reaches past it. */
-~winButton::before {
+.winButton::before {
   content: "";
   position: absolute;
   inset: -6px -4px;
 }
 
-~winButton::after {
+.winButton::after {
   position: absolute;
   inset: 0;
   display: grid;
@@ -325,37 +356,37 @@ body {
   opacity: 0;
 }
 
-~winButtons:hover ~winButton::after {
+.winButtons:hover .winButton::after {
   opacity: 1;
 }
 
-~winButtonClose {
+.winButtonClose {
   order: -1;
   background: #ff5f57 !important;
 }
 
-~winButtonClose::after {
+.winButtonClose::after {
   content: "\00d7";
 }
 
-~winButtonMinMax:nth-child(1) {
+.winButtonMinMax:nth-child(1) {
   background: #febc2e !important;
 }
 
-~winButtonMinMax:nth-child(1)::after {
+.winButtonMinMax:nth-child(1)::after {
   content: "\2212";
 }
 
-~winButtonMinMax:nth-child(2) {
+.winButtonMinMax:nth-child(2) {
   background: #28c840 !important;
 }
 
-~winButtonMinMax:nth-child(2)::after {
+.winButtonMinMax:nth-child(2)::after {
   content: "+";
 }
 
 /* Like macOS: the lights go grey when the window loses focus, until you hover them. */
-html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
+html:not(.app-focused) .winButtons:not(:hover) .winButton {
   background: var(--dp-fill-1) !important;
 }
 
@@ -363,7 +394,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
    4. Dock: the server rail
    -------------------------------------------------------------------------- */
 
-[data-fullscreen] ~guilds {
+[data-fullscreen] .guilds {
   z-index: 5;
   height: 100%;
   margin: 0;
@@ -375,7 +406,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
 
 /* The first icon sits as far from the top of the Dock as from its sides.
    Discord sets this padding inline, so only !important can override it. */
-[data-list-id="guildsnav"] ~scroller {
+[data-list-id="guildsnav"] .scroller {
   padding-block-start: var(--custom-guild-list-padding) !important;
 }
 
@@ -386,38 +417,38 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
 
 [data-list-id="guildsnav"] foreignObject > div,
 [data-list-id="guildsnav"] foreignObject img,
-[data-list-id="guildsnav"] ~childWrapper {
+[data-list-id="guildsnav"] .childWrapper {
   border-radius: var(--dp-r-icon) !important;
   corner-shape: squircle;
 }
 
 /* Magnification, with the neighbours following. */
-[data-list-id="guildsnav"] ~listItem {
+[data-list-id="guildsnav"] .listItem {
   transition: transform var(--dp-spring-t) var(--dp-spring);
 }
 
-[data-list-id="guildsnav"] ~listItem:hover {
+[data-list-id="guildsnav"] .listItem:hover {
   transform: scale(1.12);
   z-index: 2;
 }
 
-[data-list-id="guildsnav"] ~listItem:hover + ~listItem,
-[data-list-id="guildsnav"] ~listItem:has(+ ~listItem:hover) {
+[data-list-id="guildsnav"] .listItem:hover + .listItem,
+[data-list-id="guildsnav"] .listItem:has(+ .listItem:hover) {
   transform: scale(1.05);
 }
 
-[data-list-id="guildsnav"] ~listItem:active {
+[data-list-id="guildsnav"] .listItem:active {
   transform: scale(1.03);
   transition-duration: var(--dp-snap-t);
 }
 
-[data-list-id="guildsnav"] ~item {
+[data-list-id="guildsnav"] .item {
   width: 4px;
   border-radius: 4px;
   background: var(--dp-label);
 }
 
-~numberBadge {
+.numberBadge {
   background: var(--dp-badge) !important;
   color: #fff !important;
   font-weight: 600;
@@ -428,7 +459,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
    5. Sidebar: a source list
    -------------------------------------------------------------------------- */
 
-[data-fullscreen] ~sidebarList {
+[data-fullscreen] .sidebarList {
   position: relative;
   overflow: hidden;
   border-radius: var(--dp-r-panel) !important;
@@ -437,19 +468,19 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   box-shadow: var(--dp-panel-shadow);
 }
 
-[data-fullscreen] ~sidebarList > nav {
+[data-fullscreen] .sidebarList > nav {
   background: none;
 }
 
 /* Discord's banner scrims read as clutter on glass, but something has to keep the server
    name legible over a bright banner. So, like the title bar, the name becomes a glass chip. */
-~headerEllipseBackdrop,
-~headerEllipseForeground,
-~headerGlass {
+.headerEllipseBackdrop,
+.headerEllipseForeground,
+.headerGlass {
   display: none;
 }
 
-[data-has-banner="true"] ~headerContent {
+[data-has-banner="true"] .headerContent {
   flex: 0 1 auto;
   height: 32px;
   margin-block-start: 6px;
@@ -460,11 +491,11 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   box-shadow: var(--dp-chip-shadow);
 }
 
-[data-has-banner="true"] ~headerContent * {
+[data-has-banner="true"] .headerContent * {
   color: var(--dp-label) !important;
 }
 
-~containerDefault ~link {
+.containerDefault .link {
   min-height: 32px;
   padding-inline: 10px;
   border-radius: var(--dp-r-row);
@@ -472,32 +503,32 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   transition: background-color var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap);
 }
 
-~containerDefault ~link:active {
+.containerDefault .link:active {
   transform: scale(0.98);
 }
 
-~containerDefault ~name {
-  font-size: 14px;
+.containerDefault .name {
+  font-size: 0.875rem;
   letter-spacing: -0.006em;
 }
 
 /* One solid accent row, like Messages and System Settings. */
-~modeSelected ~link {
+.modeSelected .link {
   background: var(--dp-selected-bg) !important;
   box-shadow: var(--dp-selected-shadow);
 }
 
-~modeSelected ~link,
-~modeSelected ~link * {
+.modeSelected .link,
+.modeSelected .link * {
   color: var(--dp-on-accent) !important;
 }
 
-~modeSelected ~link svg {
+.modeSelected .link svg {
   fill: currentColor;
 }
 
 /* Unread: a blue dot, like Messages. */
-~containerDefault ~unread {
+.containerDefault .unread {
   left: 2px;
   top: 50%;
   width: 6px;
@@ -511,7 +542,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
    6. User panel
    -------------------------------------------------------------------------- */
 
-[data-fullscreen] ~panels {
+[data-fullscreen] .panels {
   inset-inline-start: calc(var(--custom-guild-list-width) + var(--dp-gap) * 2 + 8px) !important;
   inset-inline-end: 8px;
   bottom: 8px;
@@ -532,13 +563,13 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
    7. Chat: the content layer
    -------------------------------------------------------------------------- */
 
-~chat > ~content {
+.chat > .content {
   gap: var(--dp-gap);
 }
 
 /* The first thing in a chat is its main pane: a message list, or the post list in a threads
    channel, which has no main element. Anything else, like the member list, docks beside it. */
-~chat > ~content > :first-child {
+.chat > .content > :first-child {
   anchor-name: --dp-main;
   overflow: hidden;
   border-radius: var(--dp-r-panel);
@@ -548,19 +579,19 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
 }
 
 /* A threads list doesn't scroll under the header, so it starts below it. */
-~chat > ~content > :first-child:not(~chatContent) {
+.chat > .content > :first-child:not(.chatContent) {
   padding-block-start: 60px;
 }
 
 /* There, a channel notice takes its own row instead of covering the search box. */
-~chat > ~content > :first-child:not(~chatContent) ~chatHeaderBar {
+.chat > .content > :first-child:not(.chatContent) .chatHeaderBar {
   position: static;
   margin: 4px 12px;
 }
 
 /* The header sits over chat only. Anchoring it to main means it follows the member list,
    thread panels and profile panels without knowing about any of them. */
-~subtitleContainer {
+.chat > .subtitleContainer {
   position: absolute;
   z-index: 6;
   top: anchor(--dp-main top);
@@ -569,7 +600,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   background: none;
 }
 
-~subtitleContainer > section {
+.chat > .subtitleContainer > section {
   position: relative;
   height: 60px;
   padding-inline: 12px;
@@ -579,7 +610,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
 
 /* The scroll edge: an eased fade, rounded to match the panel it sits on. A masked backdrop blur
    would leave a hard cut, and a square fade would cover the corners. */
-~subtitleContainer::before {
+.chat > .subtitleContainer::before {
   content: "";
   position: absolute;
   inset: 0 0 -32px;
@@ -589,18 +620,18 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   background: linear-gradient(var(--dp-edge) 56%, color-mix(in srgb, var(--dp-edge) 62%, transparent) 74%, color-mix(in srgb, var(--dp-edge) 20%, transparent) 90%, transparent);
 }
 
-~upperContainer {
+.upperContainer {
   justify-content: space-between;
   gap: 8px;
 }
 
-~upperContainer > ~toolbar {
+.upperContainer > .toolbar {
   flex: none;
   margin-inline-start: auto;
 }
 
 /* The title floats in its own chip, so it stays legible over whatever scrolls beneath it. */
-~upperContainer > ~children {
+.upperContainer > .children {
   flex: 0 1 auto;
   height: 40px;
   min-width: 0;
@@ -612,7 +643,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
 }
 
 /* Toolbar icons group into one floating capsule. */
-~upperContainer ~toolbar {
+.upperContainer .toolbar {
   height: 40px;
   padding-inline: 4px;
   border-radius: var(--dp-capsule);
@@ -621,18 +652,42 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   box-shadow: var(--dp-control-shadow);
 }
 
-~upperContainer ~title {
-  font: 600 16px/22px var(--dp-font-display);
+.upperContainer .title {
+  font: 600 1rem/1.375rem var(--dp-font-display);
   letter-spacing: -0.01em;
 }
 
+/* Pages outside chat, like the Shop, use the same header without the floating bar around it.
+   This gives it the same breathing room, or its capsules sit against the top of the panel. */
+:not(.subtitleContainer) > section:has(> .upperContainer) {
+  height: 56px;
+  padding-inline: 12px;
+}
+
+:not(.subtitleContainer) > section > .upperContainer {
+  align-items: center;
+}
+
+/* Pieces inside a capsule follow its curve. */
+.upperContainer > .toolbar .searchBar,
+.upperContainer > .toolbar .searchBar .wrapper,
+.upperContainer > .toolbar .wishlistButton,
+.upperContainer > .toolbar .clickable .container {
+  border-radius: var(--dp-capsule);
+}
+
+/* A round end needs more room before the text than a square one. */
+.upperContainer > .toolbar .search .searchBar {
+  padding-inline-start: 6px;
+}
+
 /* Messages scroll under the header and the composer. */
-~scrollerInner {
+[data-list-id="chat-messages"] {
   padding-block: 68px 84px;
 }
 
 /* Channel notices float under the header as a small sheet of glass. */
-~chatHeaderBar {
+.chatHeaderBar {
   position: absolute;
   z-index: 5;
   top: 64px;
@@ -645,40 +700,40 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   box-shadow: var(--dp-menu-shadow);
 }
 
-~message {
+.messageListItem > .message {
   margin-inline: 8px;
   border-radius: var(--dp-r-row);
   corner-shape: squircle;
   transition: background-color var(--dp-snap-t) var(--dp-snap);
 }
 
-~cozyMessage ~messageContent,
-~messageContent {
-  line-height: 22px;
+.messageContent {
+  line-height: 1.375rem;
 }
 
-~username {
+.message .username,
+.member .username {
   font-weight: 600;
   letter-spacing: -0.012em;
   filter: var(--dp-name-filter);
 }
 
-~member ~name,
-~nameTag ~title {
+.member .name,
+.nameTag .title {
   filter: var(--dp-name-filter);
 }
 
 /* Discord pins these to the very top and bottom of the transcript, which would put them behind
    the header and the composer. They float clear of both instead. */
-~jumpToPresentBar,
-~newMessagesBar {
+.jumpToPresentBar,
+.newMessagesBar {
   inset-inline: 24px;
   z-index: 8;
   border: 0;
   border-radius: var(--dp-capsule);
 }
 
-~jumpToPresentBar {
+.jumpToPresentBar {
   bottom: 84px;
   min-height: 36px;
   padding-block: 0;
@@ -688,7 +743,7 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
   box-shadow: var(--dp-menu-shadow);
 }
 
-~newMessagesBar {
+.newMessagesBar {
   top: 66px;
   background-color: var(--dp-accent);
   box-shadow: var(--dp-selected-shadow);
@@ -701,14 +756,14 @@ html:not(.app-focused) ~winButtons:not(:hover) ~winButton {
    transcript as usual instead of covering the newest messages.
    -------------------------------------------------------------------------- */
 
-form~form {
+form.form {
   z-index: 7;
   margin-block-start: -76px;
   padding: 0 16px 14px !important;
   background: none;
 }
 
-~channelTextArea {
+form.form .channelTextArea {
   margin: 0;
   border: 0 !important;
   border-radius: 26px;
@@ -717,12 +772,12 @@ form~form {
   box-shadow: var(--dp-control-shadow) !important;
 }
 
-~scrollableContainer {
+form.form .scrollableContainer {
   border-radius: 26px;
   background: none !important;
 }
 
-form~form ~typing {
+form.form .typing {
   position: absolute;
   inset: auto 0 100% 0;
   height: 20px;
@@ -734,12 +789,12 @@ form~form ~typing {
    -------------------------------------------------------------------------- */
 
 /* Discord draws a 1px border here, which shows as a straight line beside the rounded corners. */
-~content > ~container:has(~membersWrap) {
+.content > .container:has(.membersWrap) {
   border: 0 !important;
   background: none;
 }
 
-~membersWrap {
+.membersWrap {
   overflow: hidden;
   border-radius: var(--dp-r-panel);
   background: var(--dp-panel-bg) !important;
@@ -747,12 +802,27 @@ form~form ~typing {
   box-shadow: var(--dp-panel-shadow);
 }
 
-~members {
+.membersWrap > .members {
   background: none !important;
 }
 
+/* The profile beside a DM docks inside the chat. Profile themes paint their own colour over this,
+   but bots and plain profiles have none, so without it the wallpaper shows straight through. */
+.chat > .content > aside {
+  overflow: hidden;
+  border-radius: var(--dp-r-panel);
+  background: var(--dp-panel-bg);
+  backdrop-filter: var(--dp-panel-filter);
+  box-shadow: var(--dp-panel-shadow);
+}
+
+/* The glass is the edge now, so the plain card inside it doesn't need an outline of its own. */
+.chat > .content > aside .user-profile-sidebar:not(.custom-user-profile-theme) {
+  box-shadow: none;
+}
+
 /* Anything that docks beside the chat, like the Friends panel, threads and profiles. */
-~channelArea ~ * {
+.channelArea ~ * {
   overflow: hidden;
   border: 0 !important;
   border-radius: var(--dp-r-panel);
@@ -761,13 +831,24 @@ form~form ~typing {
   box-shadow: var(--dp-panel-shadow);
 }
 
+/* An open thread is a layer inside the channel area, so it isn't beside the chat like the panels
+   above. It's for reading, so it gets the same thicker material as the chat itself. */
+.chatLayerWrapper > .container:not(.chatTarget) {
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--dp-r-panel) !important; /* Discord squares the corner on the docked side */
+  background: var(--dp-content-bg);
+  backdrop-filter: var(--dp-content-filter);
+  box-shadow: var(--dp-content-shadow);
+}
+
 /* Discord ghosts offline people to 30%. Apple would use a secondary label. */
-~offline:not(:hover) {
+.offline:not(:hover) {
   opacity: 0.66;
 }
 
-~membersGroupName {
-  font: 600 12px/16px var(--dp-font);
+.membersGroupName {
+  font: 600 0.75rem/1rem var(--dp-font);
   letter-spacing: -0.002em;
   text-transform: none;
 }
@@ -799,15 +880,15 @@ form~form ~typing {
   min-height: 28px;
   border-radius: var(--dp-r-menu-row);
   corner-shape: squircle;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
-[role="menu"] ~focused {
+[role="menu"] .focused {
   background: var(--dp-accent) !important;
   color: var(--dp-on-accent) !important;
 }
 
-~tooltip {
+[role="tooltip"] {
   border-radius: 10px;
   background: var(--dp-menu-bg);
   backdrop-filter: var(--dp-menu-filter);
@@ -815,8 +896,33 @@ form~form ~typing {
   color: var(--dp-label);
 }
 
-~tooltipPointer {
+.tooltipPointer {
   display: none;
+}
+
+/* Popouts like the inbox, emoji picker, pins and search filters paint a translucent surface.
+   Without the same glass as a menu, the page behind them shows straight through their text.
+   Only popouts sit in a click trap. Settings wraps the whole window in a dialog, so a plain
+   dialog selector would cover the screen. */
+.clickTrapContainer [role="dialog"],
+.clickTrapContainer [role="listbox"],
+.clickTrapContainer .popout,
+.autocomplete {
+  border-radius: var(--dp-r-menu);
+  background: var(--dp-menu-bg);
+  backdrop-filter: var(--dp-menu-filter);
+  box-shadow: var(--dp-menu-shadow);
+}
+
+/* Only dialogs clip their corners. A listbox scrolls itself, so clipping would stop that. */
+.clickTrapContainer [role="dialog"] {
+  overflow: hidden;
+}
+
+/* Behind a sheet, the page shows through the same dark glass as the chat. */
+.layerContainer > .scrim {
+  background: var(--dp-backdrop-bg);
+  backdrop-filter: var(--dp-content-filter);
 }
 
 /* Settings is a layermodal, everything else a modal. Both become sheets. */
@@ -833,13 +939,13 @@ form~form ~typing {
    -------------------------------------------------------------------------- */
 
 button[data-mana-component="button"],
-~lookFilled {
+.lookFilled {
   border-radius: var(--dp-capsule);
   transition: transform var(--dp-snap-t) var(--dp-snap), background-color var(--dp-snap-t) var(--dp-snap);
 }
 
 button[data-mana-component="button"]:active,
-~lookFilled:active {
+.lookFilled:active {
   transform: scale(0.96);
 }
 
@@ -867,15 +973,15 @@ html:not(.full-motion) {
    13. Settings: the same one solid accent row as the channel list
    -------------------------------------------------------------------------- */
 
-[data-mana-component$="modal"] aside ~itemContainer~active {
+[data-mana-component$="modal"] aside .itemContainer.active {
   border-radius: var(--dp-r-row);
   corner-shape: squircle;
   background: var(--dp-selected-bg) !important;
   box-shadow: var(--dp-selected-shadow);
 }
 
-[data-mana-component$="modal"] aside ~itemContainer~active,
-[data-mana-component$="modal"] aside ~itemContainer~active * {
+[data-mana-component$="modal"] aside .itemContainer.active,
+[data-mana-component$="modal"] aside .itemContainer.active * {
   color: var(--dp-on-accent) !important;
 }
 
@@ -896,7 +1002,7 @@ html:not(.full-motion) {
 }
 
 /* Pages without a chat, like Friends, Shop and Quests, sit on the same material. */
-[data-fullscreen] ~page > :not(:has(~channelArea)) {
+[data-fullscreen] .page > :not(:has(.channelArea)) {
   overflow: hidden;
   border-radius: var(--dp-r-panel) !important;
   background: var(--dp-content-bg) !important;

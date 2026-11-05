@@ -84,8 +84,8 @@ Role colors are set by each server. A filter deepens names on light glass and li
 Checked against Discord 1.0.9267 on Chrome 152.
 
 - **Old variables are gone.** `--background-primary`, `--text-normal` and `--accent-hue` have no definitions or uses.
-- **`:root` alone loses.** Tokens are declared on the `.theme-*` classes and `.visual-refresh`, and lazy stylesheets can load after a theme, so the build repeats those selectors to outrank them without `!important`.
-- **Hashes rotate, stems don't.** In `src/theme.css`, `~panels` is a build macro for one exact stem. A plain `[class*="bar_"]` would also hit `sidebar_` and `toolbar_`.
+- **`:root` alone loses.** Tokens are declared on the `.theme-*` classes and `.visual-refresh`, and lazy stylesheets can load after a theme, so the theme repeats those selectors to outrank them without `!important`.
+- **Hashes rotate, names don't.** In `src/theme.css`, `.panels` means Discord's class with any ending, and the build matches it by the start of the name. A name that also appears inside longer ones needs the longer match, so `bar` (inside `sidebar_` and `toolbar_`) is listed in `SHARED_NAMES` in `build.mjs`. Check every new name against the class list in Discord's CSS.
 - **The header is anchored to chat.** CSS anchor positioning lets it follow the member list and side panels without knowing about them.
 - **Nitro themes use two systems.** Color amounts and `--background-gradient-*` both need neutralizing.
 
@@ -104,7 +104,10 @@ Checked against Discord 1.0.9267 on Chrome 152.
 - **The lens needs a known height.** The composer grows, so it uses a top-rim-only map.
 - **Don't mask a backdrop blur for scroll edges.** It leaves a hard cut, so use an eased gradient.
 - **Don't override the sidebar width.** It's the user's saved size.
-- **`title` is a shared stem** across nested elements, so use direct-child selectors there.
+- **`title` is a shared name** across nested elements, so use direct-child selectors there.
+- **Translucent surfaces need glass behind them.** `--background-surface-*` are translucent here, so a popout with no blur shows the page straight through its text. Popouts get the menu material. Open new ones to check, because nothing else will catch this.
+- **Prefer a role to a class name.** `role="tooltip"`, `role="dialog"` and `data-list-id="chat-messages"` each mean one thing, while `tooltip_` alone is six different classes.
+- **Check what a name really matches.** `layer_` is eight classes, one of them a backdrop, so the reset only touches `.layers > .layer`. Discord also has classes with no CSS of their own, like `containerDefault_`, so its stylesheets alone can't prove a name is dead. Check the live client too.
 - **Base64 can spell things by chance.** The Equicord Theme Library refuses any file containing `PNG`, `JFIF` and similar, even inside an embedded image, so the build re-encodes a wallpaper a notch lower until it's clean.
 
 ## Verification
