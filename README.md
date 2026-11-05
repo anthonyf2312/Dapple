@@ -90,13 +90,85 @@ Dapple is made to be used with San Francisco, the font Apple uses across its dev
 - **On a Mac,** there's nothing to do. Dapple already uses it.
 - **On Windows or Linux,** Dapple uses [Inter](https://rsms.me/inter/), the closest free match. If SF Pro is installed, Dapple switches to it by itself, with no settings to change.
 
-**[Download SF Pro from Apple](https://developer.apple.com/fonts/)**
+### Install on Windows
 
-Good to know before you download it:
+1. Right-click the Start button and open **Terminal** or **Windows PowerShell**. You don't need to run it as admin.
+2. Copy the whole box below, paste it in and press Enter. If Windows warns about pasting several lines, choose **Paste anyway**.
+3. When it says it's done, close Discord fully and open it again. To close it fully, right-click its icon by the clock and choose **Quit Discord**.
 
-- It's a separate download because Apple's licence doesn't allow SF Pro to be included with a theme.
-- The download is a Mac installer, and the licence is written for designing apps for Apple's platforms, so please read Apple's terms to check they cover what you want to do.
-- Install every weight, not just one. With a single weight installed, every title uses that weight, so one heavy file makes all your titles extra bold.
+```powershell
+& {
+  # Installs SF Pro and SF Mono for your Windows account. It doesn't need admin rights.
+  # The files come from SFWindows, locked to one version so they can't change later.
+  $ErrorActionPreference = 'Stop'
+  $ProgressPreference = 'SilentlyContinue'
+  [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
+  $source = 'https://raw.githubusercontent.com/bradleyhodges/SFWindows/53cbc77150baa6222342aca231e4f55137b948af'
+  $fontFolder = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
+  $fontList = 'HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts'
+  $weights = 'Ultralight', 'Thin', 'Light', 'Regular', 'Medium', 'Semibold', 'Bold', 'Heavy', 'Black'
+
+  $fonts = foreach ($style in '', 'Italic') {
+    foreach ($weight in $weights) {
+      "SF%20Pro/SF-Pro-Display-$weight$style.otf"
+      "SF%20Pro/SF-Pro-Text-$weight$style.otf"
+    }
+    foreach ($weight in $weights[2..7]) { "SF%20Mono/SF-Mono-$weight$style.otf" }
+  }
+
+  try {
+    New-Item -ItemType Directory -Force -Path $fontFolder | Out-Null
+    if (-not (Test-Path $fontList)) { New-Item -Path $fontList | Out-Null }
+    $key = Get-Item $fontList
+    $listed = $key.GetValueNames() | ForEach-Object { $key.GetValue($_) }
+    Add-Type -Namespace Dapple -Name Gdi -MemberDefinition '[DllImport("gdi32.dll", CharSet = CharSet.Unicode)] public static extern int AddFontResource(string file);'
+
+    $number = 0
+    foreach ($font in $fonts) {
+      $number++
+      $file = Split-Path $font -Leaf
+      $path = Join-Path $fontFolder $file
+      Write-Host "$number of $($fonts.Count): $file"
+      if (-not (Test-Path $path)) {
+        $download = Join-Path $env:TEMP $file
+        Invoke-WebRequest -Uri "$source/$font" -OutFile $download -UseBasicParsing
+        Move-Item -Path $download -Destination $path -Force
+      }
+      if ($listed -notcontains $path) {
+        $name = ($file -replace '-', ' ' -replace 'Italic', ' Italic' -replace '\.otf$', '') + ' (OpenType)'
+        New-ItemProperty -Path $fontList -Name $name -Value $path -Force | Out-Null
+      }
+      [void][Dapple.Gdi]::AddFontResource($path)
+    }
+    Write-Host 'Done. Close Discord fully and open it again.' -ForegroundColor Green
+  } catch {
+    Write-Host "Stopped: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host 'Paste it again to carry on. Fonts that finished are kept.'
+  }
+}
+```
+
+It downloads about 215 MB: every weight of SF Pro, plus SF Mono for code blocks. To remove the fonts later, go to Windows **Settings > Personalisation > Fonts**.
+
+<details>
+<summary>Or install it by hand</summary>
+
+1. Go to [SFWindows](https://github.com/bradleyhodges/SFWindows), click the green **Code** button, then **Download ZIP**. It's a large download, a few hundred MB.
+2. Extract the ZIP and open the `SF Pro` folder.
+3. Select every file, right-click and choose **Install**. On Windows 11 it may be under **Show more options**.
+4. Close Discord fully and open it again.
+
+Install every weight, not just one. With a single weight installed, every title uses that weight, so one heavy file makes all your titles extra bold.
+
+</details>
+
+### Good to know
+
+- The fonts are a separate download because Apple's licence doesn't allow SF Pro to be included with a theme.
+- The Windows fonts come from [SFWindows](https://github.com/bradleyhodges/SFWindows), a community project that isn't made by Apple or connected to Dapple.
+- The fonts still belong to Apple, and Apple's licence is written for designing apps for Apple's platforms, so please read [Apple's terms](https://developer.apple.com/fonts/) and decide if you're happy to use them on Windows.
+- [Apple's own download](https://developer.apple.com/fonts/) is the official version, but it's a Mac installer, so it won't install on Windows.
 
 ## Your own wallpaper
 
