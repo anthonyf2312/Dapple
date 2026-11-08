@@ -888,6 +888,29 @@ form.form .typing {
   color: var(--dp-on-accent) !important;
 }
 
+/* A submenu, like the times under Idle, is drawn inside its parent menu but placed against the
+   window. Glass or motion on the parent makes the parent's box its frame instead, so the status
+   menu cuts it off and its blur can't see past the parent. While a submenu is open, the parent's
+   glass moves to a layer behind its rows, and its arrival finishes at once so it can't move. */
+[role="menu"]:has([role="menu"]) {
+  position: relative;
+  isolation: isolate;
+  background: none !important;
+  backdrop-filter: none;
+  animation-duration: 0s;
+}
+
+[role="menu"]:has([role="menu"])::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--dp-menu-bg);
+  backdrop-filter: var(--dp-menu-filter);
+  pointer-events: none;
+}
+
 [role="tooltip"] {
   border-radius: 10px;
   background: var(--dp-menu-bg);
