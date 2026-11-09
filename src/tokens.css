@@ -112,6 +112,9 @@
   --dp-red-text: hsl(from #c00012 h calc(s * var(--dp-sat)) l); /* AA, including on a translucent menu over a dimmed page */
   --dp-orange: hsl(from #ff8d28 h calc(s * var(--dp-sat)) l);
   --dp-green: hsl(from #34c759 h calc(s * var(--dp-sat)) l);
+  /* The fills above are too pale to read as text on light glass. These are as dark as the red text. */
+  --dp-orange-text: hsl(from #8f4700 h calc(s * var(--dp-sat)) l);
+  --dp-green-text: hsl(from #0f6b2c h calc(s * var(--dp-sat)) l);
   --dp-code-keyword: #8f2f88;
   --dp-code-string: #a81510;
   --dp-code-number: #2023b8;
@@ -129,8 +132,12 @@
   --dp-panel-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.6), inset 0 1px 0.5px rgba(255, 255, 255, 0.9);
   --dp-content-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.5), inset 0 1px 0.5px rgba(255, 255, 255, 0.7);
   --dp-chip-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.95);
-  --dp-control-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.95), 0 8px 20px rgba(40, 50, 90, 0.14);
-  --dp-menu-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7), inset 0 1px 0.5px rgba(255, 255, 255, 0.95), 0 0 0 0.5px rgba(0, 0, 0, 0.07), 0 16px 48px rgba(40, 50, 90, 0.22);
+  /* Three depths: resting on a surface, a floating control and a menu. Discord's own shadows map to these. */
+  --dp-depth-low: 0 1px 3px rgba(40, 50, 90, 0.12);
+  --dp-depth-mid: 0 8px 20px rgba(40, 50, 90, 0.14);
+  --dp-depth-high: 0 16px 48px rgba(40, 50, 90, 0.22);
+  --dp-control-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.95), var(--dp-depth-mid);
+  --dp-menu-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7), inset 0 1px 0.5px rgba(255, 255, 255, 0.95), 0 0 0 0.5px rgba(0, 0, 0, 0.07), var(--dp-depth-high);
   --dp-sheet-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7), inset 0 1px 0.5px rgba(255, 255, 255, 0.95), 0 0 0 0.5px rgba(0, 0, 0, 0.08), 0 30px 90px rgba(40, 50, 90, 0.3);
 }
 
@@ -159,6 +166,9 @@
   --dp-red-text: hsl(from #ff6961 h calc(s * var(--dp-sat)) l);
   --dp-orange: hsl(from #ff9230 h calc(s * var(--dp-sat)) l);
   --dp-green: hsl(from #30d158 h calc(s * var(--dp-sat)) l);
+  /* On dark glass the fills are already brighter than the red text, so they read as they are. */
+  --dp-orange-text: var(--dp-orange);
+  --dp-green-text: var(--dp-green);
   --dp-code-keyword: #fc5fa3;
   --dp-code-string: #fc6a5d;
   --dp-code-number: #d0bf69;
@@ -174,8 +184,12 @@
   --dp-panel-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.16), inset 0 1px 0.5px rgba(255, 255, 255, 0.26);
   --dp-content-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.12), inset 0 1px 0.5px rgba(255, 255, 255, 0.2);
   --dp-chip-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.1);
-  --dp-control-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0, 0, 0, 0.28);
-  --dp-menu-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.22), inset 0 1px 0.5px rgba(255, 255, 255, 0.3), 0 16px 48px rgba(0, 0, 0, 0.5);
+  /* Three depths: resting on a surface, a floating control and a menu. Discord's own shadows map to these. */
+  --dp-depth-low: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --dp-depth-mid: 0 8px 20px rgba(0, 0, 0, 0.28);
+  --dp-depth-high: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --dp-control-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.1), var(--dp-depth-mid);
+  --dp-menu-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.22), inset 0 1px 0.5px rgba(255, 255, 255, 0.3), var(--dp-depth-high);
   --dp-sheet-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.2), inset 0 1px 0.5px rgba(255, 255, 255, 0.26), 0 30px 90px rgba(0, 0, 0, 0.6);
 }
 
@@ -192,6 +206,8 @@
   /* Colours tuned for thin glass: text stays strong rather than thickening the glass. */
   --dp-link: hsl(from var(--dp-accent) h s 76%);
   --dp-red-text: hsl(from #ff9d96 h calc(s * var(--dp-sat)) l);
+  --dp-orange-text: hsl(from #ffad5c h calc(s * var(--dp-sat)) l);
+  --dp-green-text: hsl(from #6ee28c h calc(s * var(--dp-sat)) l);
   --dp-code-keyword: #ff9ccb;
   --dp-code-string: #ffa59c;
   --dp-code-number: #ecdd94;
@@ -219,6 +235,8 @@
   --dp-label-3: #34343f;
   --dp-link: hsl(from var(--dp-accent) h s 28%);
   --dp-red-text: hsl(from #9e000e h calc(s * var(--dp-sat)) l);
+  --dp-orange-text: hsl(from #783b00 h calc(s * var(--dp-sat)) l);
+  --dp-green-text: hsl(from #0b5723 h calc(s * var(--dp-sat)) l);
   --dp-code-keyword: #7a1f73;
   --dp-code-string: #8f0f0a;
   --dp-code-number: #1a1da0;

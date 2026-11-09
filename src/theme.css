@@ -22,7 +22,6 @@
 .theme-midnight.theme-midnight.theme-midnight,
 .visual-refresh.visual-refresh.visual-refresh {
   --font-primary: var(--dp-font);
-  --font-display: var(--dp-font-display);
   --font-headline: var(--dp-font-display);
   --font-nitro: var(--dp-font-display); /* headings on the Nitro and Shop pages */
   --font-display-marketing-header: var(--dp-font-display);
@@ -162,11 +161,10 @@
   --control-secondary-icon-hover: var(--dp-label);
   --control-secondary-icon-active: var(--dp-label);
 
-  /* The accent, wherever Discord still reaches for blurple */
-  --brand-500: var(--dp-accent);
-  --brand-500-hsl: 210 100% 44.5%;
-  --blurple-50: var(--dp-accent);
-  --blurple-50-hsl: 210 100% 44.5%;
+  /* The accent, wherever Discord reaches for blurple. Discord builds its switches, tick boxes,
+     mentions and tints from a hundred shades of blurple, so build.mjs writes every one of them
+     on the next line, each made from --dp-accent. */
+  /* build: accent shades */
 
   /* System status colours */
   --status-positive: var(--dp-green);
@@ -180,7 +178,38 @@
   --text-status-online: var(--dp-green);
   --text-status-idle: var(--dp-orange);
   --text-status-dnd: var(--dp-red);
+
+  /* Errors, warnings and successes. Text and icons use the deeper colours made for reading,
+     and anything that carries white text uses the badge red. */
   --text-feedback-critical: var(--dp-red-text);
+  --icon-feedback-critical: var(--dp-red-text);
+  --border-feedback-critical: var(--dp-red-text);
+  --text-feedback-warning: var(--dp-orange-text);
+  --icon-feedback-warning: var(--dp-orange-text); /* also the bar beside a message that mentions you */
+  --text-feedback-positive: var(--dp-green-text);
+  --icon-feedback-positive: var(--dp-green-text);
+  --text-feedback-info: var(--dp-link);
+  --icon-feedback-info: var(--dp-link);
+  --background-feedback-mod-critical: color-mix(in srgb, var(--dp-red) 10%, transparent);
+  --background-feedback-mod-warning: color-mix(in srgb, var(--dp-orange) 10%, transparent);
+  --background-feedback-mod-positive: color-mix(in srgb, var(--dp-green) 10%, transparent);
+  --background-feedback-mod-info: color-mix(in srgb, var(--dp-tint) 10%, transparent);
+  --background-feedback-notification: var(--dp-badge);
+  --badge-critical-background: var(--dp-badge);
+  --control-critical-primary-background-default: var(--dp-badge);
+  --control-critical-primary-background-hover: color-mix(in srgb, var(--dp-badge), black 8%);
+  --control-critical-primary-background-active: color-mix(in srgb, var(--dp-badge), black 14%);
+  --control-critical-secondary-text-default: var(--dp-red-text);
+  --control-critical-secondary-text-hover: var(--dp-red-text);
+  --control-critical-secondary-text-active: var(--dp-red-text);
+
+  /* Depth. Discord's three shadows become Dapple's three: resting on a surface, a floating
+     control and a menu. Its 1px outline becomes a hairline. */
+  --shadow-border: 0 0 0 1px var(--dp-hairline);
+  --shadow-low: var(--dp-depth-low);
+  --shadow-low-hover: var(--dp-depth-mid);
+  --shadow-medium: var(--dp-depth-mid);
+  --shadow-high: var(--dp-depth-high);
 
   /* Overlay scrollbars */
   --scrollbar-auto-thumb: var(--dp-fill-1);

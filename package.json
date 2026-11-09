@@ -10,7 +10,8 @@
     "url": "https://github.com/anthonyf2312/Dapple.git"
   },
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "check": "node build.mjs && node check.mjs"
   },
   "devDependencies": {
     "sharp": "^0.35.5"

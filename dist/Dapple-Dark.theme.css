@@ -116,6 +116,9 @@
   --dp-red-text: hsl(from #ff6961 h calc(s * var(--dp-sat)) l);
   --dp-orange: hsl(from #ff9230 h calc(s * var(--dp-sat)) l);
   --dp-green: hsl(from #30d158 h calc(s * var(--dp-sat)) l);
+  /* On dark glass the fills are already brighter than the red text, so they read as they are. */
+  --dp-orange-text: var(--dp-orange);
+  --dp-green-text: var(--dp-green);
   --dp-code-keyword: #fc5fa3;
   --dp-code-string: #fc6a5d;
   --dp-code-number: #d0bf69;
@@ -131,8 +134,12 @@
   --dp-panel-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.16), inset 0 1px 0.5px rgba(255, 255, 255, 0.26);
   --dp-content-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.12), inset 0 1px 0.5px rgba(255, 255, 255, 0.2);
   --dp-chip-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.1);
-  --dp-control-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0, 0, 0, 0.28);
-  --dp-menu-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.22), inset 0 1px 0.5px rgba(255, 255, 255, 0.3), 0 16px 48px rgba(0, 0, 0, 0.5);
+  /* Three depths: resting on a surface, a floating control and a menu. Discord's own shadows map to these. */
+  --dp-depth-low: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --dp-depth-mid: 0 8px 20px rgba(0, 0, 0, 0.28);
+  --dp-depth-high: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --dp-control-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.24), inset 0 1px 1px rgba(255, 255, 255, 0.4), inset 0 -1px 1px rgba(255, 255, 255, 0.1), var(--dp-depth-mid);
+  --dp-menu-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.22), inset 0 1px 0.5px rgba(255, 255, 255, 0.3), var(--dp-depth-high);
   --dp-sheet-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.2), inset 0 1px 0.5px rgba(255, 255, 255, 0.26), 0 30px 90px rgba(0, 0, 0, 0.6);
 }
 
@@ -227,7 +234,6 @@
 .theme-midnight.theme-midnight.theme-midnight,
 .visual-refresh.visual-refresh.visual-refresh {
   --font-primary: var(--dp-font);
-  --font-display: var(--dp-font-display);
   --font-headline: var(--dp-font-display);
   --font-nitro: var(--dp-font-display); /* headings on the Nitro and Shop pages */
   --font-display-marketing-header: var(--dp-font-display);
@@ -367,11 +373,163 @@
   --control-secondary-icon-hover: var(--dp-label);
   --control-secondary-icon-active: var(--dp-label);
 
-  /* The accent, wherever Discord still reaches for blurple */
-  --brand-500: var(--dp-accent);
-  --brand-500-hsl: 210 100% 44.5%;
-  --blurple-50: var(--dp-accent);
-  --blurple-50-hsl: 210 100% 44.5%;
+  /* The accent, wherever Discord reaches for blurple. Discord builds its switches, tick boxes,
+     mentions and tints from a hundred shades of blurple, so build.mjs writes every one of them
+     on the next line, each made from --dp-accent. */
+  --blurple-1-hsl: from color-mix(in oklab, var(--dp-accent), white 86%) h s l;
+  --blurple-2-hsl: from color-mix(in oklab, var(--dp-accent), white 84.2%) h s l;
+  --blurple-3-hsl: from color-mix(in oklab, var(--dp-accent), white 82.5%) h s l;
+  --blurple-4-hsl: from color-mix(in oklab, var(--dp-accent), white 80.7%) h s l;
+  --blurple-5-hsl: from color-mix(in oklab, var(--dp-accent), white 79%) h s l;
+  --blurple-6-hsl: from color-mix(in oklab, var(--dp-accent), white 77.2%) h s l;
+  --blurple-7-hsl: from color-mix(in oklab, var(--dp-accent), white 75.5%) h s l;
+  --blurple-8-hsl: from color-mix(in oklab, var(--dp-accent), white 73.7%) h s l;
+  --blurple-9-hsl: from color-mix(in oklab, var(--dp-accent), white 72%) h s l;
+  --blurple-10-hsl: from color-mix(in oklab, var(--dp-accent), white 70.2%) h s l;
+  --blurple-11-hsl: from color-mix(in oklab, var(--dp-accent), white 68.4%) h s l;
+  --blurple-12-hsl: from color-mix(in oklab, var(--dp-accent), white 66.7%) h s l;
+  --blurple-13-hsl: from color-mix(in oklab, var(--dp-accent), white 64.9%) h s l;
+  --blurple-14-hsl: from color-mix(in oklab, var(--dp-accent), white 63.2%) h s l;
+  --blurple-15-hsl: from color-mix(in oklab, var(--dp-accent), white 61.4%) h s l;
+  --blurple-16-hsl: from color-mix(in oklab, var(--dp-accent), white 59.7%) h s l;
+  --blurple-17-hsl: from color-mix(in oklab, var(--dp-accent), white 57.9%) h s l;
+  --blurple-18-hsl: from color-mix(in oklab, var(--dp-accent), white 56.2%) h s l;
+  --blurple-19-hsl: from color-mix(in oklab, var(--dp-accent), white 54.4%) h s l;
+  --blurple-20-hsl: from color-mix(in oklab, var(--dp-accent), white 52.6%) h s l;
+  --blurple-21-hsl: from color-mix(in oklab, var(--dp-accent), white 50.9%) h s l;
+  --blurple-22-hsl: from color-mix(in oklab, var(--dp-accent), white 49.1%) h s l;
+  --blurple-23-hsl: from color-mix(in oklab, var(--dp-accent), white 47.4%) h s l;
+  --blurple-24-hsl: from color-mix(in oklab, var(--dp-accent), white 45.6%) h s l;
+  --blurple-25-hsl: from color-mix(in oklab, var(--dp-accent), white 43.9%) h s l;
+  --blurple-26-hsl: from color-mix(in oklab, var(--dp-accent), white 42.1%) h s l;
+  --blurple-27-hsl: from color-mix(in oklab, var(--dp-accent), white 40.4%) h s l;
+  --blurple-28-hsl: from color-mix(in oklab, var(--dp-accent), white 38.6%) h s l;
+  --blurple-29-hsl: from color-mix(in oklab, var(--dp-accent), white 36.9%) h s l;
+  --blurple-30-hsl: from color-mix(in oklab, var(--dp-accent), white 35.1%) h s l;
+  --blurple-31-hsl: from color-mix(in oklab, var(--dp-accent), white 33.3%) h s l;
+  --blurple-32-hsl: from color-mix(in oklab, var(--dp-accent), white 31.6%) h s l;
+  --blurple-33-hsl: from color-mix(in oklab, var(--dp-accent), white 29.8%) h s l;
+  --blurple-34-hsl: from color-mix(in oklab, var(--dp-accent), white 28.1%) h s l;
+  --blurple-35-hsl: from color-mix(in oklab, var(--dp-accent), white 26.3%) h s l;
+  --blurple-36-hsl: from color-mix(in oklab, var(--dp-accent), white 24.6%) h s l;
+  --blurple-37-hsl: from color-mix(in oklab, var(--dp-accent), white 22.8%) h s l;
+  --blurple-38-hsl: from color-mix(in oklab, var(--dp-accent), white 21.1%) h s l;
+  --blurple-39-hsl: from color-mix(in oklab, var(--dp-accent), white 19.3%) h s l;
+  --blurple-40-hsl: from color-mix(in oklab, var(--dp-accent), white 17.5%) h s l;
+  --blurple-41-hsl: from color-mix(in oklab, var(--dp-accent), white 15.8%) h s l;
+  --blurple-42-hsl: from color-mix(in oklab, var(--dp-accent), white 14%) h s l;
+  --blurple-43-hsl: from color-mix(in oklab, var(--dp-accent), white 12.3%) h s l;
+  --blurple-44-hsl: from color-mix(in oklab, var(--dp-accent), white 10.5%) h s l;
+  --blurple-45-hsl: from color-mix(in oklab, var(--dp-accent), white 8.8%) h s l;
+  --blurple-46-hsl: from color-mix(in oklab, var(--dp-accent), white 7%) h s l;
+  --blurple-47-hsl: from color-mix(in oklab, var(--dp-accent), white 5.3%) h s l;
+  --blurple-48-hsl: from color-mix(in oklab, var(--dp-accent), white 3.5%) h s l;
+  --blurple-49-hsl: from color-mix(in oklab, var(--dp-accent), white 1.8%) h s l;
+  --blurple-50-hsl: from var(--dp-accent) h s l;
+  --blurple-51-hsl: from color-mix(in oklab, var(--dp-accent), black 1.6%) h s l;
+  --blurple-52-hsl: from color-mix(in oklab, var(--dp-accent), black 3.1%) h s l;
+  --blurple-53-hsl: from color-mix(in oklab, var(--dp-accent), black 4.7%) h s l;
+  --blurple-54-hsl: from color-mix(in oklab, var(--dp-accent), black 6.2%) h s l;
+  --blurple-55-hsl: from color-mix(in oklab, var(--dp-accent), black 7.8%) h s l;
+  --blurple-56-hsl: from color-mix(in oklab, var(--dp-accent), black 9.3%) h s l;
+  --blurple-57-hsl: from color-mix(in oklab, var(--dp-accent), black 10.8%) h s l;
+  --blurple-58-hsl: from color-mix(in oklab, var(--dp-accent), black 12.4%) h s l;
+  --blurple-59-hsl: from color-mix(in oklab, var(--dp-accent), black 14%) h s l;
+  --blurple-60-hsl: from color-mix(in oklab, var(--dp-accent), black 15.5%) h s l;
+  --blurple-61-hsl: from color-mix(in oklab, var(--dp-accent), black 17.1%) h s l;
+  --blurple-62-hsl: from color-mix(in oklab, var(--dp-accent), black 18.6%) h s l;
+  --blurple-63-hsl: from color-mix(in oklab, var(--dp-accent), black 20.2%) h s l;
+  --blurple-64-hsl: from color-mix(in oklab, var(--dp-accent), black 21.7%) h s l;
+  --blurple-65-hsl: from color-mix(in oklab, var(--dp-accent), black 23.3%) h s l;
+  --blurple-66-hsl: from color-mix(in oklab, var(--dp-accent), black 24.8%) h s l;
+  --blurple-67-hsl: from color-mix(in oklab, var(--dp-accent), black 26.4%) h s l;
+  --blurple-68-hsl: from color-mix(in oklab, var(--dp-accent), black 27.9%) h s l;
+  --blurple-69-hsl: from color-mix(in oklab, var(--dp-accent), black 29.4%) h s l;
+  --blurple-70-hsl: from color-mix(in oklab, var(--dp-accent), black 31%) h s l;
+  --blurple-71-hsl: from color-mix(in oklab, var(--dp-accent), black 32.6%) h s l;
+  --blurple-72-hsl: from color-mix(in oklab, var(--dp-accent), black 34.1%) h s l;
+  --blurple-73-hsl: from color-mix(in oklab, var(--dp-accent), black 35.6%) h s l;
+  --blurple-74-hsl: from color-mix(in oklab, var(--dp-accent), black 37.2%) h s l;
+  --blurple-75-hsl: from color-mix(in oklab, var(--dp-accent), black 38.8%) h s l;
+  --blurple-76-hsl: from color-mix(in oklab, var(--dp-accent), black 40.3%) h s l;
+  --blurple-77-hsl: from color-mix(in oklab, var(--dp-accent), black 41.9%) h s l;
+  --blurple-78-hsl: from color-mix(in oklab, var(--dp-accent), black 43.4%) h s l;
+  --blurple-79-hsl: from color-mix(in oklab, var(--dp-accent), black 45%) h s l;
+  --blurple-80-hsl: from color-mix(in oklab, var(--dp-accent), black 46.5%) h s l;
+  --blurple-81-hsl: from color-mix(in oklab, var(--dp-accent), black 48.1%) h s l;
+  --blurple-82-hsl: from color-mix(in oklab, var(--dp-accent), black 49.6%) h s l;
+  --blurple-83-hsl: from color-mix(in oklab, var(--dp-accent), black 51.1%) h s l;
+  --blurple-84-hsl: from color-mix(in oklab, var(--dp-accent), black 52.7%) h s l;
+  --blurple-85-hsl: from color-mix(in oklab, var(--dp-accent), black 54.3%) h s l;
+  --blurple-86-hsl: from color-mix(in oklab, var(--dp-accent), black 55.8%) h s l;
+  --blurple-87-hsl: from color-mix(in oklab, var(--dp-accent), black 57.4%) h s l;
+  --blurple-88-hsl: from color-mix(in oklab, var(--dp-accent), black 58.9%) h s l;
+  --blurple-89-hsl: from color-mix(in oklab, var(--dp-accent), black 60.5%) h s l;
+  --blurple-90-hsl: from color-mix(in oklab, var(--dp-accent), black 62%) h s l;
+  --blurple-91-hsl: from color-mix(in oklab, var(--dp-accent), black 63.6%) h s l;
+  --blurple-92-hsl: from color-mix(in oklab, var(--dp-accent), black 65.1%) h s l;
+  --blurple-93-hsl: from color-mix(in oklab, var(--dp-accent), black 66.7%) h s l;
+  --blurple-94-hsl: from color-mix(in oklab, var(--dp-accent), black 68.2%) h s l;
+  --blurple-95-hsl: from color-mix(in oklab, var(--dp-accent), black 69.8%) h s l;
+  --blurple-96-hsl: from color-mix(in oklab, var(--dp-accent), black 71.3%) h s l;
+  --blurple-97-hsl: from color-mix(in oklab, var(--dp-accent), black 74%) h s l;
+  --blurple-98-hsl: from color-mix(in oklab, var(--dp-accent), black 77%) h s l;
+  --blurple-99-hsl: from color-mix(in oklab, var(--dp-accent), black 83%) h s l;
+  --blurple-100-hsl: from color-mix(in oklab, var(--dp-accent), black 100%) h s l;
+  --brand-100-hsl: var(--blurple-1-hsl);
+  --brand-130-hsl: var(--blurple-1-hsl);
+  --brand-160-hsl: var(--blurple-1-hsl);
+  --brand-200-hsl: var(--blurple-4-hsl);
+  --brand-230-hsl: var(--blurple-7-hsl);
+  --brand-260-hsl: var(--blurple-10-hsl);
+  --brand-300-hsl: var(--blurple-15-hsl);
+  --brand-330-hsl: var(--blurple-21-hsl);
+  --brand-345-hsl: var(--blurple-26-hsl);
+  --brand-360-hsl: var(--blurple-29-hsl);
+  --brand-400-hsl: var(--blurple-38-hsl);
+  --brand-430-hsl: var(--blurple-41-hsl);
+  --brand-460-hsl: var(--blurple-45-hsl);
+  --brand-500-hsl: var(--blurple-50-hsl);
+  --brand-530-hsl: var(--blurple-54-hsl);
+  --brand-560-hsl: var(--blurple-59-hsl);
+  --brand-600-hsl: var(--blurple-65-hsl);
+  --brand-630-hsl: var(--blurple-70-hsl);
+  --brand-660-hsl: var(--blurple-74-hsl);
+  --brand-700-hsl: var(--blurple-81-hsl);
+  --brand-730-hsl: var(--blurple-82-hsl);
+  --brand-760-hsl: var(--blurple-84-hsl);
+  --brand-800-hsl: var(--blurple-86-hsl);
+  --brand-830-hsl: var(--blurple-91-hsl);
+  --brand-860-hsl: var(--blurple-96-hsl);
+  --brand-900-hsl: var(--blurple-99-hsl);
+  --opacity-blurple-1-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-4-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-8-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-12-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-16-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-20-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-24-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-28-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-32-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-36-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-40-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-44-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-48-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-52-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-56-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-60-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-64-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-68-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-72-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-76-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-80-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-84-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-88-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-92-hsl: from var(--dp-accent) h s l;
+  --opacity-blurple-96-hsl: from var(--dp-accent) h s l;
+  --brand-gradient-blurple-hsl: var(--blurple-50-hsl);
+  --brand-gradient-blurple-light-hsl: var(--blurple-1-hsl);
+  --brand-gradient-blurple-dark-hsl: var(--blurple-85-hsl);
 
   /* System status colours */
   --status-positive: var(--dp-green);
@@ -385,7 +543,38 @@
   --text-status-online: var(--dp-green);
   --text-status-idle: var(--dp-orange);
   --text-status-dnd: var(--dp-red);
+
+  /* Errors, warnings and successes. Text and icons use the deeper colours made for reading,
+     and anything that carries white text uses the badge red. */
   --text-feedback-critical: var(--dp-red-text);
+  --icon-feedback-critical: var(--dp-red-text);
+  --border-feedback-critical: var(--dp-red-text);
+  --text-feedback-warning: var(--dp-orange-text);
+  --icon-feedback-warning: var(--dp-orange-text); /* also the bar beside a message that mentions you */
+  --text-feedback-positive: var(--dp-green-text);
+  --icon-feedback-positive: var(--dp-green-text);
+  --text-feedback-info: var(--dp-link);
+  --icon-feedback-info: var(--dp-link);
+  --background-feedback-mod-critical: color-mix(in srgb, var(--dp-red) 10%, transparent);
+  --background-feedback-mod-warning: color-mix(in srgb, var(--dp-orange) 10%, transparent);
+  --background-feedback-mod-positive: color-mix(in srgb, var(--dp-green) 10%, transparent);
+  --background-feedback-mod-info: color-mix(in srgb, var(--dp-tint) 10%, transparent);
+  --background-feedback-notification: var(--dp-badge);
+  --badge-critical-background: var(--dp-badge);
+  --control-critical-primary-background-default: var(--dp-badge);
+  --control-critical-primary-background-hover: color-mix(in srgb, var(--dp-badge), black 8%);
+  --control-critical-primary-background-active: color-mix(in srgb, var(--dp-badge), black 14%);
+  --control-critical-secondary-text-default: var(--dp-red-text);
+  --control-critical-secondary-text-hover: var(--dp-red-text);
+  --control-critical-secondary-text-active: var(--dp-red-text);
+
+  /* Depth. Discord's three shadows become Dapple's three: resting on a surface, a floating
+     control and a menu. Its 1px outline becomes a hairline. */
+  --shadow-border: 0 0 0 1px var(--dp-hairline);
+  --shadow-low: var(--dp-depth-low);
+  --shadow-low-hover: var(--dp-depth-mid);
+  --shadow-medium: var(--dp-depth-mid);
+  --shadow-high: var(--dp-depth-high);
 
   /* Overlay scrollbars */
   --scrollbar-auto-thumb: var(--dp-fill-1);
@@ -412,22 +601,22 @@ body {
 }
 
 #app-mount,
-[class*="appMount_"],
-[class*="bg_"],
-[class*="app_"],
-[class*="layers_"],
-[class*="layers_"] > :is([class^="layer_"], [class*=" layer_"]),
-[class*="baseLayer_"],
-[class*="appAsidePanelWrapper_"],
-[class*="notAppAsidePanel_"],
+:is([class^="appMount_"], [class*=" appMount_"]),
+:is([class^="bg_"], [class*=" bg_"]),
+:is([class^="app_"], [class*=" app_"]),
+:is([class^="layers_"], [class*=" layers_"]),
+:is([class^="layers_"], [class*=" layers_"]) > :is([class^="layer_"], [class*=" layer_"]),
+:is([class^="baseLayer_"], [class*=" baseLayer_"]),
+:is([class^="appAsidePanelWrapper_"], [class*=" appAsidePanelWrapper_"]),
+:is([class^="notAppAsidePanel_"], [class*=" notAppAsidePanel_"]),
 [data-fullscreen],
-[data-fullscreen] > [class*="content_"],
-[data-fullscreen] [class*="sidebar_"],
-[data-fullscreen] [class*="sidebarList_"],
-[data-fullscreen] [class*="page_"],
-[data-fullscreen] [class*="page_"] > div,
-[class*="channelArea_"],
-[class*="chat_"] {
+[data-fullscreen] > :is([class^="content_"], [class*=" content_"]),
+[data-fullscreen] :is([class^="sidebar_"], [class*=" sidebar_"]),
+[data-fullscreen] :is([class^="sidebarList_"], [class*=" sidebarList_"]),
+[data-fullscreen] :is([class^="page_"], [class*=" page_"]),
+[data-fullscreen] :is([class^="page_"], [class*=" page_"]) > div,
+:is([class^="channelArea_"], [class*=" channelArea_"]),
+:is([class^="chat_"], [class*=" chat_"]) {
   background: none !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -444,7 +633,7 @@ body {
   margin-inline: calc(-1 * var(--dp-gap));
 }
 
-[data-fullscreen] [class*="sidebar_"]::after {
+[data-fullscreen] :is([class^="sidebar_"], [class*=" sidebar_"])::after {
   display: none;
 }
 
@@ -458,12 +647,12 @@ body {
   align-items: center;
 }
 
-[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) [class*="leading_"] {
+[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) :is([class^="leading_"], [class*=" leading_"]) {
   padding-inline-start: 72px;
 }
 
 /* Text never sits directly on a wallpaper, so the bar's contents become small chips. */
-[class*="backForwardButtons_"],
+:is([class^="backForwardButtons_"], [class*=" backForwardButtons_"]),
 [data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) > :is([class^="title_"], [class*=" title_"]) > * {
   align-items: center;
   height: 28px;
@@ -486,7 +675,7 @@ body {
   font-weight: 600;
 }
 
-[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) [class*="guildIcon_"] {
+[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) :is([class^="guildIcon_"], [class*=" guildIcon_"]) {
   width: 18px;
   height: 18px;
   border-radius: 6px;
@@ -495,7 +684,7 @@ body {
 
 /* The chip is a pseudo-element on purpose. The window buttons live inside this element, and
    backdrop-filter on it would become their containing block and trap them here. */
-[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) [class*="trailing_"] {
+[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) :is([class^="trailing_"], [class*=" trailing_"]) {
   position: relative;
   height: 28px;
   padding-inline: 8px;
@@ -503,7 +692,7 @@ body {
   color: var(--dp-label);
 }
 
-[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) [class*="trailing_"]::before {
+[data-fullscreen] > :is([class^="bar_"], [class*=" bar_"]) :is([class^="trailing_"], [class*=" trailing_"])::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -515,7 +704,7 @@ body {
 }
 
 /* The real window buttons, restyled, so minimise, maximise and close all still work. */
-[class*="winButtons_"] {
+:is([class^="winButtons_"], [class*=" winButtons_"]) {
   position: fixed !important;
   top: calc((var(--dp-topbar) - 12px) / 2);
   left: 16px;
@@ -526,11 +715,11 @@ body {
   -webkit-app-region: no-drag;
 }
 
-[class*="winButtons_"]::before {
+:is([class^="winButtons_"], [class*=" winButtons_"])::before {
   display: none !important;
 }
 
-[class*="winButton_"] {
+:is([class^="winButton_"], [class*=" winButton_"]) {
   position: relative !important;
   top: 0 !important;
   width: 12px !important;
@@ -541,18 +730,18 @@ body {
   transition: background-color var(--dp-snap-t) var(--dp-snap);
 }
 
-[class*="winButton_"] svg {
+:is([class^="winButton_"], [class*=" winButton_"]) svg {
   display: none;
 }
 
 /* A 12px dot is a hard target, so the hit area reaches past it. */
-[class*="winButton_"]::before {
+:is([class^="winButton_"], [class*=" winButton_"])::before {
   content: "";
   position: absolute;
   inset: -6px -4px;
 }
 
-[class*="winButton_"]::after {
+:is([class^="winButton_"], [class*=" winButton_"])::after {
   position: absolute;
   inset: 0;
   display: grid;
@@ -561,37 +750,37 @@ body {
   opacity: 0;
 }
 
-[class*="winButtons_"]:hover [class*="winButton_"]::after {
+:is([class^="winButtons_"], [class*=" winButtons_"]):hover :is([class^="winButton_"], [class*=" winButton_"])::after {
   opacity: 1;
 }
 
-[class*="winButtonClose_"] {
+:is([class^="winButtonClose_"], [class*=" winButtonClose_"]) {
   order: -1;
   background: #ff5f57 !important;
 }
 
-[class*="winButtonClose_"]::after {
+:is([class^="winButtonClose_"], [class*=" winButtonClose_"])::after {
   content: "\00d7";
 }
 
-[class*="winButtonMinMax_"]:nth-child(1) {
+:is([class^="winButtonMinMax_"], [class*=" winButtonMinMax_"]):nth-child(1) {
   background: #febc2e !important;
 }
 
-[class*="winButtonMinMax_"]:nth-child(1)::after {
+:is([class^="winButtonMinMax_"], [class*=" winButtonMinMax_"]):nth-child(1)::after {
   content: "\2212";
 }
 
-[class*="winButtonMinMax_"]:nth-child(2) {
+:is([class^="winButtonMinMax_"], [class*=" winButtonMinMax_"]):nth-child(2) {
   background: #28c840 !important;
 }
 
-[class*="winButtonMinMax_"]:nth-child(2)::after {
+:is([class^="winButtonMinMax_"], [class*=" winButtonMinMax_"]):nth-child(2)::after {
   content: "+";
 }
 
 /* Like macOS: the lights go grey when the window loses focus, until you hover them. */
-html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] {
+html:not(.app-focused) :is([class^="winButtons_"], [class*=" winButtons_"]):not(:hover) :is([class^="winButton_"], [class*=" winButton_"]) {
   background: var(--dp-fill-1) !important;
 }
 
@@ -599,7 +788,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
    4. Dock: the server rail
    -------------------------------------------------------------------------- */
 
-[data-fullscreen] [class*="guilds_"] {
+[data-fullscreen] :is([class^="guilds_"], [class*=" guilds_"]) {
   z-index: 5;
   height: 100%;
   margin: 0;
@@ -611,7 +800,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
 
 /* The first icon sits as far from the top of the Dock as from its sides.
    Discord sets this padding inline, so only !important can override it. */
-[data-list-id="guildsnav"] [class*="scroller_"] {
+[data-list-id="guildsnav"] :is([class^="scroller_"], [class*=" scroller_"]) {
   padding-block-start: var(--custom-guild-list-padding) !important;
 }
 
@@ -622,38 +811,38 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
 
 [data-list-id="guildsnav"] foreignObject > div,
 [data-list-id="guildsnav"] foreignObject img,
-[data-list-id="guildsnav"] [class*="childWrapper_"] {
+[data-list-id="guildsnav"] :is([class^="childWrapper_"], [class*=" childWrapper_"]) {
   border-radius: var(--dp-r-icon) !important;
   corner-shape: squircle;
 }
 
 /* Magnification, with the neighbours following. */
-[data-list-id="guildsnav"] [class*="listItem_"] {
+[data-list-id="guildsnav"] :is([class^="listItem_"], [class*=" listItem_"]) {
   transition: transform var(--dp-spring-t) var(--dp-spring);
 }
 
-[data-list-id="guildsnav"] [class*="listItem_"]:hover {
+[data-list-id="guildsnav"] :is([class^="listItem_"], [class*=" listItem_"]):hover {
   transform: scale(1.12);
   z-index: 2;
 }
 
-[data-list-id="guildsnav"] [class*="listItem_"]:hover + [class*="listItem_"],
-[data-list-id="guildsnav"] [class*="listItem_"]:has(+ [class*="listItem_"]:hover) {
+[data-list-id="guildsnav"] :is([class^="listItem_"], [class*=" listItem_"]):hover + :is([class^="listItem_"], [class*=" listItem_"]),
+[data-list-id="guildsnav"] :is([class^="listItem_"], [class*=" listItem_"]):has(+ :is([class^="listItem_"], [class*=" listItem_"]):hover) {
   transform: scale(1.05);
 }
 
-[data-list-id="guildsnav"] [class*="listItem_"]:active {
+[data-list-id="guildsnav"] :is([class^="listItem_"], [class*=" listItem_"]):active {
   transform: scale(1.03);
   transition-duration: var(--dp-snap-t);
 }
 
-[data-list-id="guildsnav"] [class*="item_"] {
+[data-list-id="guildsnav"] :is([class^="item_"], [class*=" item_"]) {
   width: 4px;
   border-radius: 4px;
   background: var(--dp-label);
 }
 
-[class*="numberBadge_"] {
+:is([class^="numberBadge_"], [class*=" numberBadge_"]) {
   background: var(--dp-badge) !important;
   color: #fff !important;
   font-weight: 600;
@@ -664,7 +853,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
    5. Sidebar: a source list
    -------------------------------------------------------------------------- */
 
-[data-fullscreen] [class*="sidebarList_"] {
+[data-fullscreen] :is([class^="sidebarList_"], [class*=" sidebarList_"]) {
   position: relative;
   overflow: hidden;
   border-radius: var(--dp-r-panel) !important;
@@ -673,19 +862,19 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   box-shadow: var(--dp-panel-shadow);
 }
 
-[data-fullscreen] [class*="sidebarList_"] > nav {
+[data-fullscreen] :is([class^="sidebarList_"], [class*=" sidebarList_"]) > nav {
   background: none;
 }
 
 /* Discord's banner scrims read as clutter on glass, but something has to keep the server
    name legible over a bright banner. So, like the title bar, the name becomes a glass chip. */
-[class*="headerEllipseBackdrop_"],
-[class*="headerEllipseForeground_"],
-[class*="headerGlass_"] {
+:is([class^="headerEllipseBackdrop_"], [class*=" headerEllipseBackdrop_"]),
+:is([class^="headerEllipseForeground_"], [class*=" headerEllipseForeground_"]),
+:is([class^="headerGlass_"], [class*=" headerGlass_"]) {
   display: none;
 }
 
-[data-has-banner="true"] [class*="headerContent_"] {
+[data-has-banner="true"] :is([class^="headerContent_"], [class*=" headerContent_"]) {
   flex: 0 1 auto;
   height: 32px;
   margin-block-start: 6px;
@@ -696,11 +885,11 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   box-shadow: var(--dp-chip-shadow);
 }
 
-[data-has-banner="true"] [class*="headerContent_"] * {
+[data-has-banner="true"] :is([class^="headerContent_"], [class*=" headerContent_"]) * {
   color: var(--dp-label) !important;
 }
 
-[class*="containerDefault_"] [class*="link_"] {
+:is([class^="containerDefault_"], [class*=" containerDefault_"]) :is([class^="link_"], [class*=" link_"]) {
   min-height: 32px;
   padding-inline: 10px;
   border-radius: var(--dp-r-row);
@@ -708,32 +897,32 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   transition: background-color var(--dp-snap-t) var(--dp-snap), transform var(--dp-snap-t) var(--dp-snap);
 }
 
-[class*="containerDefault_"] [class*="link_"]:active {
+:is([class^="containerDefault_"], [class*=" containerDefault_"]) :is([class^="link_"], [class*=" link_"]):active {
   transform: scale(0.98);
 }
 
-[class*="containerDefault_"] :is([class^="name_"], [class*=" name_"]) {
+:is([class^="containerDefault_"], [class*=" containerDefault_"]) :is([class^="name_"], [class*=" name_"]) {
   font-size: 0.875rem;
   letter-spacing: -0.006em;
 }
 
 /* One solid accent row, like Messages and System Settings. */
-[class*="modeSelected_"] [class*="link_"] {
+:is([class^="modeSelected_"], [class*=" modeSelected_"]) :is([class^="link_"], [class*=" link_"]) {
   background: var(--dp-selected-bg) !important;
   box-shadow: var(--dp-selected-shadow);
 }
 
-[class*="modeSelected_"] [class*="link_"],
-[class*="modeSelected_"] [class*="link_"] * {
+:is([class^="modeSelected_"], [class*=" modeSelected_"]) :is([class^="link_"], [class*=" link_"]),
+:is([class^="modeSelected_"], [class*=" modeSelected_"]) :is([class^="link_"], [class*=" link_"]) * {
   color: var(--dp-on-accent) !important;
 }
 
-[class*="modeSelected_"] [class*="link_"] svg {
+:is([class^="modeSelected_"], [class*=" modeSelected_"]) :is([class^="link_"], [class*=" link_"]) svg {
   fill: currentColor;
 }
 
 /* Unread: a blue dot, like Messages. */
-[class*="containerDefault_"] [class*="unread_"] {
+:is([class^="containerDefault_"], [class*=" containerDefault_"]) :is([class^="unread_"], [class*=" unread_"]) {
   left: 2px;
   top: 50%;
   width: 6px;
@@ -747,7 +936,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
    6. User panel
    -------------------------------------------------------------------------- */
 
-[data-fullscreen] [class*="panels_"] {
+[data-fullscreen] :is([class^="panels_"], [class*=" panels_"]) {
   inset-inline-start: calc(var(--custom-guild-list-width) + var(--dp-gap) * 2 + 8px) !important;
   inset-inline-end: 8px;
   bottom: 8px;
@@ -768,13 +957,13 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
    7. Chat: the content layer
    -------------------------------------------------------------------------- */
 
-[class*="chat_"] > [class*="content_"] {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="content_"], [class*=" content_"]) {
   gap: var(--dp-gap);
 }
 
 /* The first thing in a chat is its main pane: a message list, or the post list in a threads
    channel, which has no main element. Anything else, like the member list, docks beside it. */
-[class*="chat_"] > [class*="content_"] > :first-child {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="content_"], [class*=" content_"]) > :first-child {
   anchor-name: --dp-main;
   overflow: hidden;
   border-radius: var(--dp-r-panel);
@@ -784,19 +973,19 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
 }
 
 /* A threads list doesn't scroll under the header, so it starts below it. */
-[class*="chat_"] > [class*="content_"] > :first-child:not([class*="chatContent_"]) {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="content_"], [class*=" content_"]) > :first-child:not(:is([class^="chatContent_"], [class*=" chatContent_"])) {
   padding-block-start: 60px;
 }
 
 /* There, a channel notice takes its own row instead of covering the search box. */
-[class*="chat_"] > [class*="content_"] > :first-child:not([class*="chatContent_"]) [class*="chatHeaderBar_"] {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="content_"], [class*=" content_"]) > :first-child:not(:is([class^="chatContent_"], [class*=" chatContent_"])) :is([class^="chatHeaderBar_"], [class*=" chatHeaderBar_"]) {
   position: static;
   margin: 4px 12px;
 }
 
 /* The header sits over chat only. Anchoring it to main means it follows the member list,
    thread panels and profile panels without knowing about any of them. */
-[class*="chat_"] > [class*="subtitleContainer_"] {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="subtitleContainer_"], [class*=" subtitleContainer_"]) {
   position: absolute;
   z-index: 6;
   top: anchor(--dp-main top);
@@ -805,7 +994,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   background: none;
 }
 
-[class*="chat_"] > [class*="subtitleContainer_"] > section {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="subtitleContainer_"], [class*=" subtitleContainer_"]) > section {
   position: relative;
   height: 60px;
   padding-inline: 12px;
@@ -815,7 +1004,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
 
 /* The scroll edge: an eased fade, rounded to match the panel it sits on. A masked backdrop blur
    would leave a hard cut, and a square fade would cover the corners. */
-[class*="chat_"] > [class*="subtitleContainer_"]::before {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="subtitleContainer_"], [class*=" subtitleContainer_"])::before {
   content: "";
   position: absolute;
   inset: 0 0 -32px;
@@ -825,18 +1014,18 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   background: linear-gradient(var(--dp-edge) 56%, color-mix(in srgb, var(--dp-edge) 62%, transparent) 74%, color-mix(in srgb, var(--dp-edge) 20%, transparent) 90%, transparent);
 }
 
-[class*="upperContainer_"] {
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) {
   justify-content: space-between;
   gap: 8px;
 }
 
-[class*="upperContainer_"] > [class*="toolbar_"] {
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) > :is([class^="toolbar_"], [class*=" toolbar_"]) {
   flex: none;
   margin-inline-start: auto;
 }
 
 /* The title floats in its own chip, so it stays legible over whatever scrolls beneath it. */
-[class*="upperContainer_"] > [class*="children_"] {
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) > :is([class^="children_"], [class*=" children_"]) {
   flex: 0 1 auto;
   height: 40px;
   min-width: 0;
@@ -848,7 +1037,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
 }
 
 /* Toolbar icons group into one floating capsule. */
-[class*="upperContainer_"] [class*="toolbar_"] {
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) :is([class^="toolbar_"], [class*=" toolbar_"]) {
   height: 40px;
   padding-inline: 4px;
   border-radius: var(--dp-capsule);
@@ -857,32 +1046,32 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   box-shadow: var(--dp-control-shadow);
 }
 
-[class*="upperContainer_"] :is([class^="title_"], [class*=" title_"]) {
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) :is([class^="title_"], [class*=" title_"]) {
   font: 600 1rem/1.375rem var(--dp-font-display);
   letter-spacing: -0.01em;
 }
 
 /* Pages outside chat, like the Shop, use the same header without the floating bar around it.
    This gives it the same breathing room, or its capsules sit against the top of the panel. */
-:not([class*="subtitleContainer_"]) > section:has(> [class*="upperContainer_"]) {
+:not(:is([class^="subtitleContainer_"], [class*=" subtitleContainer_"])) > section:has(> :is([class^="upperContainer_"], [class*=" upperContainer_"])) {
   height: 56px;
   padding-inline: 12px;
 }
 
-:not([class*="subtitleContainer_"]) > section > [class*="upperContainer_"] {
+:not(:is([class^="subtitleContainer_"], [class*=" subtitleContainer_"])) > section > :is([class^="upperContainer_"], [class*=" upperContainer_"]) {
   align-items: center;
 }
 
 /* Pieces inside a capsule follow its curve. */
-[class*="upperContainer_"] > [class*="toolbar_"] [class*="searchBar_"],
-[class*="upperContainer_"] > [class*="toolbar_"] [class*="searchBar_"] [class*="wrapper_"],
-[class*="upperContainer_"] > [class*="toolbar_"] [class*="wishlistButton_"],
-[class*="upperContainer_"] > [class*="toolbar_"] [class*="clickable_"] [class*="container_"] {
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) > :is([class^="toolbar_"], [class*=" toolbar_"]) :is([class^="searchBar_"], [class*=" searchBar_"]),
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) > :is([class^="toolbar_"], [class*=" toolbar_"]) :is([class^="searchBar_"], [class*=" searchBar_"]) :is([class^="wrapper_"], [class*=" wrapper_"]),
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) > :is([class^="toolbar_"], [class*=" toolbar_"]) :is([class^="wishlistButton_"], [class*=" wishlistButton_"]),
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) > :is([class^="toolbar_"], [class*=" toolbar_"]) :is([class^="clickable_"], [class*=" clickable_"]) :is([class^="container_"], [class*=" container_"]) {
   border-radius: var(--dp-capsule);
 }
 
 /* A round end needs more room before the text than a square one. */
-[class*="upperContainer_"] > [class*="toolbar_"] [class*="search_"] [class*="searchBar_"] {
+:is([class^="upperContainer_"], [class*=" upperContainer_"]) > :is([class^="toolbar_"], [class*=" toolbar_"]) :is([class^="search_"], [class*=" search_"]) :is([class^="searchBar_"], [class*=" searchBar_"]) {
   padding-inline-start: 6px;
 }
 
@@ -892,7 +1081,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
 }
 
 /* Channel notices float under the header as a small sheet of glass. */
-[class*="chatHeaderBar_"] {
+:is([class^="chatHeaderBar_"], [class*=" chatHeaderBar_"]) {
   position: absolute;
   z-index: 5;
   top: 64px;
@@ -905,40 +1094,40 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   box-shadow: var(--dp-menu-shadow);
 }
 
-[class*="messageListItem_"] > [class*="message_"] {
+:is([class^="messageListItem_"], [class*=" messageListItem_"]) > :is([class^="message_"], [class*=" message_"]) {
   margin-inline: 8px;
   border-radius: var(--dp-r-row);
   corner-shape: squircle;
   transition: background-color var(--dp-snap-t) var(--dp-snap);
 }
 
-[class*="messageContent_"] {
+:is([class^="messageContent_"], [class*=" messageContent_"]) {
   line-height: 1.375rem;
 }
 
-[class*="message_"] [class*="username_"],
-[class*="member_"] [class*="username_"] {
+:is([class^="message_"], [class*=" message_"]) :is([class^="username_"], [class*=" username_"]),
+:is([class^="member_"], [class*=" member_"]) :is([class^="username_"], [class*=" username_"]) {
   font-weight: 600;
   letter-spacing: -0.012em;
   filter: var(--dp-name-filter);
 }
 
-[class*="member_"] :is([class^="name_"], [class*=" name_"]),
-[class*="nameTag_"] :is([class^="title_"], [class*=" title_"]) {
+:is([class^="member_"], [class*=" member_"]) :is([class^="name_"], [class*=" name_"]),
+:is([class^="nameTag_"], [class*=" nameTag_"]) :is([class^="title_"], [class*=" title_"]) {
   filter: var(--dp-name-filter);
 }
 
 /* Discord pins these to the very top and bottom of the transcript, which would put them behind
    the header and the composer. They float clear of both instead. */
-[class*="jumpToPresentBar_"],
-[class*="newMessagesBar_"] {
+:is([class^="jumpToPresentBar_"], [class*=" jumpToPresentBar_"]),
+:is([class^="newMessagesBar_"], [class*=" newMessagesBar_"]) {
   inset-inline: 24px;
   z-index: 8;
   border: 0;
   border-radius: var(--dp-capsule);
 }
 
-[class*="jumpToPresentBar_"] {
+:is([class^="jumpToPresentBar_"], [class*=" jumpToPresentBar_"]) {
   bottom: 84px;
   min-height: 36px;
   padding-block: 0;
@@ -948,7 +1137,7 @@ html:not(.app-focused) [class*="winButtons_"]:not(:hover) [class*="winButton_"] 
   box-shadow: var(--dp-menu-shadow);
 }
 
-[class*="newMessagesBar_"] {
+:is([class^="newMessagesBar_"], [class*=" newMessagesBar_"]) {
   top: 66px;
   background-color: var(--dp-accent);
   box-shadow: var(--dp-selected-shadow);
@@ -968,7 +1157,7 @@ form:is([class^="form_"], [class*=" form_"]) {
   background: none;
 }
 
-form:is([class^="form_"], [class*=" form_"]) [class*="channelTextArea_"] {
+form:is([class^="form_"], [class*=" form_"]) :is([class^="channelTextArea_"], [class*=" channelTextArea_"]) {
   margin: 0;
   border: 0 !important;
   border-radius: 26px;
@@ -977,12 +1166,12 @@ form:is([class^="form_"], [class*=" form_"]) [class*="channelTextArea_"] {
   box-shadow: var(--dp-control-shadow) !important;
 }
 
-form:is([class^="form_"], [class*=" form_"]) [class*="scrollableContainer_"] {
+form:is([class^="form_"], [class*=" form_"]) :is([class^="scrollableContainer_"], [class*=" scrollableContainer_"]) {
   border-radius: 26px;
   background: none !important;
 }
 
-form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
+form:is([class^="form_"], [class*=" form_"]) :is([class^="typing_"], [class*=" typing_"]) {
   position: absolute;
   inset: auto 0 100% 0;
   height: 20px;
@@ -994,12 +1183,12 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
    -------------------------------------------------------------------------- */
 
 /* Discord draws a 1px border here, which shows as a straight line beside the rounded corners. */
-[class*="content_"] > [class*="container_"]:has([class*="membersWrap_"]) {
+:is([class^="content_"], [class*=" content_"]) > :is([class^="container_"], [class*=" container_"]):has(:is([class^="membersWrap_"], [class*=" membersWrap_"])) {
   border: 0 !important;
   background: none;
 }
 
-[class*="membersWrap_"] {
+:is([class^="membersWrap_"], [class*=" membersWrap_"]) {
   overflow: hidden;
   border-radius: var(--dp-r-panel);
   background: var(--dp-panel-bg) !important;
@@ -1007,13 +1196,13 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
   box-shadow: var(--dp-panel-shadow);
 }
 
-[class*="membersWrap_"] > [class*="members_"] {
+:is([class^="membersWrap_"], [class*=" membersWrap_"]) > :is([class^="members_"], [class*=" members_"]) {
   background: none !important;
 }
 
 /* The profile beside a DM docks inside the chat. Profile themes paint their own colour over this,
    but bots and plain profiles have none, so without it the wallpaper shows straight through. */
-[class*="chat_"] > [class*="content_"] > aside {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="content_"], [class*=" content_"]) > aside {
   overflow: hidden;
   border-radius: var(--dp-r-panel);
   background: var(--dp-panel-bg);
@@ -1022,12 +1211,12 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
 }
 
 /* The glass is the edge now, so the plain card inside it doesn't need an outline of its own. */
-[class*="chat_"] > [class*="content_"] > aside .user-profile-sidebar:not(.custom-user-profile-theme) {
+:is([class^="chat_"], [class*=" chat_"]) > :is([class^="content_"], [class*=" content_"]) > aside .user-profile-sidebar:not(.custom-user-profile-theme) {
   box-shadow: none;
 }
 
 /* Anything that docks beside the chat, like the Friends panel, threads and profiles. */
-[class*="channelArea_"] ~ * {
+:is([class^="channelArea_"], [class*=" channelArea_"]) ~ * {
   overflow: hidden;
   border: 0 !important;
   border-radius: var(--dp-r-panel);
@@ -1038,7 +1227,7 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
 
 /* An open thread is a layer inside the channel area, so it isn't beside the chat like the panels
    above. It's for reading, so it gets the same thicker material as the chat itself. */
-[class*="chatLayerWrapper_"] > [class*="container_"]:not([class*="chatTarget_"]) {
+:is([class^="chatLayerWrapper_"], [class*=" chatLayerWrapper_"]) > :is([class^="container_"], [class*=" container_"]):not(:is([class^="chatTarget_"], [class*=" chatTarget_"])) {
   overflow: hidden;
   border: 0;
   border-radius: var(--dp-r-panel) !important; /* Discord squares the corner on the docked side */
@@ -1048,11 +1237,11 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
 }
 
 /* Discord ghosts offline people to 30%. Apple would use a secondary label. */
-[class*="offline_"]:not(:hover) {
+:is([class^="offline_"], [class*=" offline_"]):not(:hover) {
   opacity: 0.66;
 }
 
-[class*="membersGroupName_"] {
+:is([class^="membersGroupName_"], [class*=" membersGroupName_"]) {
   font: 600 0.75rem/1rem var(--dp-font);
   letter-spacing: -0.002em;
   text-transform: none;
@@ -1124,7 +1313,7 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
   color: var(--dp-label);
 }
 
-[class*="tooltipPointer_"] {
+:is([class^="tooltipPointer_"], [class*=" tooltipPointer_"]) {
   display: none;
 }
 
@@ -1132,10 +1321,10 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
    Without the same glass as a menu, the page behind them shows straight through their text.
    Only popouts sit in a click trap. Settings wraps the whole window in a dialog, so a plain
    dialog selector would cover the screen. */
-[class*="clickTrapContainer_"] [role="dialog"],
-[class*="clickTrapContainer_"] [role="listbox"],
-[class*="clickTrapContainer_"] [class*="popout_"],
-[class*="autocomplete_"] {
+:is([class^="clickTrapContainer_"], [class*=" clickTrapContainer_"]) [role="dialog"],
+:is([class^="clickTrapContainer_"], [class*=" clickTrapContainer_"]) [role="listbox"],
+:is([class^="clickTrapContainer_"], [class*=" clickTrapContainer_"]) :is([class^="popout_"], [class*=" popout_"]),
+:is([class^="autocomplete_"], [class*=" autocomplete_"]) {
   border-radius: var(--dp-r-menu);
   background: var(--dp-menu-bg);
   backdrop-filter: var(--dp-menu-filter);
@@ -1143,12 +1332,12 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
 }
 
 /* Only dialogs clip their corners. A listbox scrolls itself, so clipping would stop that. */
-[class*="clickTrapContainer_"] [role="dialog"] {
+:is([class^="clickTrapContainer_"], [class*=" clickTrapContainer_"]) [role="dialog"] {
   overflow: hidden;
 }
 
 /* Behind a sheet, the page shows through the same dark glass as the chat. */
-:is([class^="layerContainer_"], [class*=" layerContainer_"]) > [class*="scrim_"] {
+:is([class^="layerContainer_"], [class*=" layerContainer_"]) > :is([class^="scrim_"], [class*=" scrim_"]) {
   background: var(--dp-backdrop-bg);
   backdrop-filter: var(--dp-content-filter);
 }
@@ -1167,13 +1356,13 @@ form:is([class^="form_"], [class*=" form_"]) [class*="typing_"] {
    -------------------------------------------------------------------------- */
 
 button[data-mana-component="button"],
-[class*="lookFilled_"] {
+:is([class^="lookFilled_"], [class*=" lookFilled_"]) {
   border-radius: var(--dp-capsule);
   transition: transform var(--dp-snap-t) var(--dp-snap), background-color var(--dp-snap-t) var(--dp-snap);
 }
 
 button[data-mana-component="button"]:active,
-[class*="lookFilled_"]:active {
+:is([class^="lookFilled_"], [class*=" lookFilled_"]):active {
   transform: scale(0.96);
 }
 
@@ -1201,15 +1390,15 @@ html:not(.full-motion) {
    13. Settings: the same one solid accent row as the channel list
    -------------------------------------------------------------------------- */
 
-[data-mana-component$="modal"] aside [class*="itemContainer_"]:is([class^="active_"], [class*=" active_"]) {
+[data-mana-component$="modal"] aside :is([class^="itemContainer_"], [class*=" itemContainer_"]):is([class^="active_"], [class*=" active_"]) {
   border-radius: var(--dp-r-row);
   corner-shape: squircle;
   background: var(--dp-selected-bg) !important;
   box-shadow: var(--dp-selected-shadow);
 }
 
-[data-mana-component$="modal"] aside [class*="itemContainer_"]:is([class^="active_"], [class*=" active_"]),
-[data-mana-component$="modal"] aside [class*="itemContainer_"]:is([class^="active_"], [class*=" active_"]) * {
+[data-mana-component$="modal"] aside :is([class^="itemContainer_"], [class*=" itemContainer_"]):is([class^="active_"], [class*=" active_"]),
+[data-mana-component$="modal"] aside :is([class^="itemContainer_"], [class*=" itemContainer_"]):is([class^="active_"], [class*=" active_"]) * {
   color: var(--dp-on-accent) !important;
 }
 
@@ -1230,7 +1419,7 @@ html:not(.full-motion) {
 }
 
 /* Pages without a chat, like Friends, Shop and Quests, sit on the same material. */
-[data-fullscreen] [class*="page_"] > :not(:has([class*="channelArea_"])) {
+[data-fullscreen] :is([class^="page_"], [class*=" page_"]) > :not(:has(:is([class^="channelArea_"], [class*=" channelArea_"]))) {
   overflow: hidden;
   border-radius: var(--dp-r-panel) !important;
   background: var(--dp-content-bg) !important;

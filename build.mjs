@@ -6,7 +6,7 @@
 // works in Equicord, Vencord and BetterDiscord with no hosting and no extra CSP rules.
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -38,10 +38,6 @@ const lightImage = name => `${name.replaceAll(' ', '+')}+Light+Mac`;
 
 const DARK_ROOT = 'html.theme-dark, html.theme-darker, html.theme-midnight';
 const LIGHT_ROOT = 'html.theme-light';
-
-// These names also appear inside longer ones (sidebar_ contains bar_), so they need the longer
-// match. Checked against every class in Discord's CSS. Everything else is safe with the short one.
-const SHARED_NAMES = new Set(['active', 'bar', 'focused', 'form', 'layer', 'layerContainer', 'name', 'title']);
 
 const stripComments = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
 const commentsIn = css => (css.match(/\/\*[\s\S]*?\*\//g) ?? []).join('\n');
@@ -92,13 +88,18 @@ function tokensFor(version) {
 }
 
 // Discord's class names end in a random hash that changes with its updates, so a class like
-// .message in the source becomes a match on the start of the name. A class with a hyphen is
-// one of Discord's fixed names, like .app-focused, and stays as written.
-const matchName = name => SHARED_NAMES.has(name)
-  ? `:is([class^="${name}_"], [class*=" ${name}_"])`
-  : `[class*="${name}_"]`;
-const expandSelectors = code => code.replace(/[^{}]+(?=\{)/g, selector =>
-  selector.replace(/\.([a-zA-Z][a-zA-Z0-9]*)(?![\w-])/g, (_, name) => matchName(name)));
+// .message in the source becomes a match on the start of the name, whether it's the first class
+// on an element or a later one. Matching any part of the name instead would also catch longer
+// names that end the same way (sidebar_ contains bar_), and a hash can contain an underscore.
+// A class with a hyphen is one of Discord's fixed names, like .app-focused, and stays as written.
+// check.mjs tests every name against Discord's current class list.
+const SELECTOR = /[^{}]+(?=\{)/g;
+const CLASS_NAME = /\.([a-zA-Z][a-zA-Z0-9]*)(?![\w-])/g;
+const matchName = name => `:is([class^="${name}_"], [class*=" ${name}_"])`;
+const expandSelectors = code => code.replace(SELECTOR, selector =>
+  selector.replace(CLASS_NAME, (_, name) => matchName(name)));
+export const namesIn = css => [...new Set((stripComments(css).match(SELECTOR) ?? [])
+  .flatMap(selector => [...selector.matchAll(CLASS_NAME)].map(match => match[1])))];
 // Odd entries are comments, which pass through untouched.
 const expandTheme = css => css.split(/(\/\*[\s\S]*?\*\/)/).map((part, i) => i % 2 ? part : expandSelectors(part)).join('');
 
@@ -126,6 +127,37 @@ function lens({ height, rim, scale, bottom = true }) {
   const mergeBottom = bottom ? `<feMergeNode in='b'/>` : '';
   const svg = `<svg xmlns='http://www.w3.org/2000/svg'><filter id='l' x='0' y='0' width='${width}' height='${height}' filterUnits='userSpaceOnUse' primitiveUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-color='rgb(128,128,0)' x='0' y='0' width='${width}' height='${height}' result='n'/><feFlood flood-color='rgb(128,255,0)' x='0' y='0' width='${width}' height='${rim}' result='t'/>${rimBottom}<feMerge result='m0'><feMergeNode in='n'/><feMergeNode in='t'/>${mergeBottom}</feMerge><feGaussianBlur in='m0' stdDeviation='${rim / 2}' result='m'/><feDisplacementMap in='SourceGraphic' in2='m' scale='${scale}' xChannelSelector='R' yChannelSelector='G'/></filter></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}#l")`;
+}
+
+// Discord keeps a hundred shades of blurple, from 1 (the palest) to 100 (black) with 50 as the
+// colour itself, and builds its switches, tick boxes, mentions and tints from them. Measured in
+// OKLab, each shade is the base mixed toward white or black by an amount that grows evenly with
+// the step, and only the last few steps toward black leave that line. The same mix applied to the
+// accent gives Dapple the whole range, so nothing is left for Discord to paint blurple.
+const SHADE_TAIL = { 97: 74, 98: 77, 99: 83, 100: 100 };
+const shade = step => {
+  if (step === 50) return 'var(--dp-accent)';
+  const amount = step < 50 ? (50 - step) * 1.755 : SHADE_TAIL[step] ?? (step - 50) * 1.55;
+  return `color-mix(in oklab, var(--dp-accent), ${step < 50 ? 'white' : 'black'} ${+amount.toFixed(1)}%)`;
+};
+// Discord's older names for the same shades, and the see-through tints it makes from the base.
+const BRAND_STEPS = {
+  100: 1, 130: 1, 160: 1, 200: 4, 230: 7, 260: 10, 300: 15, 330: 21, 345: 26, 360: 29, 400: 38, 430: 41, 460: 45,
+  500: 50, 530: 54, 560: 59, 600: 65, 630: 70, 660: 74, 700: 81, 730: 82, 760: 84, 800: 86, 830: 91, 860: 96, 900: 99,
+};
+const TINT_STEPS = [1, ...Array.from({ length: 24 }, (_, i) => (i + 1) * 4)];
+const GRADIENT_STEPS = { '': 50, '-light': 1, '-dark': 85 };
+// Discord stores each colour as bare numbers and wraps them itself, as hsl(var(--blurple-50-hsl)/1).
+// A value that starts with "from" turns that into a relative colour, so it can follow the accent.
+const numbersOf = color => `from ${color} h s l`;
+const ACCENT_MARKER = '/* build: accent shades */';
+function accentShades() {
+  const lines = [];
+  for (let step = 1; step <= 100; step++) lines.push(`--blurple-${step}-hsl: ${numbersOf(shade(step))};`);
+  for (const [name, step] of Object.entries(BRAND_STEPS)) lines.push(`--brand-${name}-hsl: var(--blurple-${step}-hsl);`);
+  for (const step of TINT_STEPS) lines.push(`--opacity-blurple-${step}-hsl: ${numbersOf('var(--dp-accent)')};`);
+  for (const [name, step] of Object.entries(GRADIENT_STEPS)) lines.push(`--brand-gradient-blurple${name}-hsl: var(--blurple-${step}-hsl);`);
+  return lines.join('\n  ');
 }
 
 const findRejected = text => REJECTED_TEXT.find(marker => text.includes(marker));
@@ -205,7 +237,9 @@ async function main() {
   rmSync(join(ROOT, 'dist'), { recursive: true, force: true });
   mkdirSync(join(ROOT, 'dist', 'flavours'), { recursive: true });
 
-  const theme = expandTheme(readFileSync(join(ROOT, 'src/theme.css'), 'utf8'));
+  const source = readFileSync(join(ROOT, 'src/theme.css'), 'utf8');
+  if (!source.includes(ACCENT_MARKER)) throw new Error(`src/theme.css has lost its "${ACCENT_MARKER}" line`);
+  const theme = expandTheme(source).replace(ACCENT_MARKER, accentShades());
   const defaultDark = await wallpaper(darkImage(DEFAULT_WALLPAPER));
   const defaultLight = await wallpaper(lightImage(DEFAULT_WALLPAPER));
   // The dark wallpaper sets the dimming and the light wallpaper sets the lift.
@@ -269,4 +303,5 @@ ${solidSurfaces()}
   for (const [name, clamps] of Object.entries(previewClamps)) console.log(name.padEnd(18), JSON.stringify(clamps));
 }
 
-await main();
+// check.mjs imports from this file, and that shouldn't start a build.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) await main();

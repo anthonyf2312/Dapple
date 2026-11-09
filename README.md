@@ -215,6 +215,14 @@ npm run build
 
 Tokens live in `src/tokens.css` and styles in `src/theme.css`. The build writes every theme to `dist/`, with wallpapers embedded.
 
+To test the result against the Discord people are running today:
+
+```bash
+npm run check
+```
+
+It builds, then checks every class name Dapple styles and every Discord colour it replaces against Discord's current files. It needs an internet connection.
+
 ## Credits
 
 - **Wallpapers:** [Topographic Amoeba](https://basicappleguy.com/basicappleblog/topographic-amoeba) by Basic Apple Guy, used with his permission. They're free to download, and he takes [the WinRAR approach](https://basicappleguy.com/basicappleblog/the-winrar-approach): the collection is an optional way to support his work. If you enjoy them, please consider it.
